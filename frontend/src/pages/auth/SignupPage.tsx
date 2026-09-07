@@ -1,11 +1,12 @@
 import * as React from 'react'
 
-import { Link, useNavigate } from 'react-router-dom'
+import {
+  Link,
+  useNavigate,
+} from 'react-router-dom'
 
 import { useForm } from 'react-hook-form'
-
 import { zodResolver } from '@hookform/resolvers/zod'
-
 import { z } from 'zod'
 
 import {
@@ -18,18 +19,15 @@ import {
   Lock,
   Mail,
   Phone,
-  ShoppingBag,
   User,
 } from 'lucide-react'
 
+import sinomartLogo from '@/assets/sinomart.jpg'
+
 import { useAuth } from '@/context/AuthProvider'
-
 import { Button } from '@/components/ui/button'
-
 import { Input } from '@/components/ui/input'
-
 import { Label } from '@/components/ui/input'
-
 import { useToast } from '@/components/ui/toast'
 
 const schema = z.object({
@@ -57,15 +55,11 @@ type FormValues = z.infer<typeof schema>
 
 export function SignupPage() {
   const { signUp, signInWithGoogle } = useAuth()
-
   const { toast } = useToast()
-
   const navigate = useNavigate()
 
   const [submitting, setSubmitting] = React.useState(false)
-
   const [googleLoading, setGoogleLoading] = React.useState(false)
-
   const [showPassword, setShowPassword] = React.useState(false)
 
   const {
@@ -75,7 +69,6 @@ export function SignupPage() {
     formState,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-
     defaultValues: {
       fullName: '',
       email: '',
@@ -114,7 +107,8 @@ export function SignupPage() {
 
       toast({
         title: 'Account created',
-        description: 'Check your email to confirm your address.',
+        description:
+          'Check your email to confirm your address.',
         variant: 'success',
       })
 
@@ -159,94 +153,89 @@ export function SignupPage() {
   const isLoading = submitting || googleLoading
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f5faf7]">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-32 -top-32 h-80 w-80 animate-pulse rounded-full bg-emerald-200/30 blur-3xl" />
+    <main className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="border-b border-slate-200/80 bg-white">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link
+            to="/"
+            className="group inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-brand-600"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            <span>Back to shop</span>
+          </Link>
 
-        <div
-          className="absolute -bottom-32 -right-32 h-96 w-96 animate-pulse rounded-full bg-green-300/20 blur-3xl"
-          style={{ animationDelay: '1.5s' }}
-        />
+          <Link
+            to="/"
+            className="flex items-center gap-2.5"
+            aria-label="Sinomart home"
+          >
+            <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
+              <img
+                src={sinomartLogo}
+                alt="Sinomart"
+                className="h-full w-full object-contain"
+              />
+            </span>
 
-        <div
-          className="absolute left-1/2 top-[15%] h-40 w-40 animate-pulse rounded-full bg-lime-200/20 blur-3xl"
-          style={{ animationDelay: '3s' }}
-        />
+            <span className="hidden text-base font-black tracking-tight text-ink-900 sm:block">
+              Sinomart
+            </span>
+          </Link>
+        </div>
+      </header>
 
-        <span className="absolute left-[10%] top-[20%] h-2 w-2 animate-bounce rounded-full bg-emerald-400/40" />
-
-        <span
-          className="absolute right-[15%] top-[25%] h-3 w-3 animate-bounce rounded-full bg-green-400/30"
-          style={{ animationDelay: '700ms' }}
-        />
-
-        <span
-          className="absolute bottom-[20%] left-[18%] h-2 w-2 animate-bounce rounded-full bg-emerald-500/30"
-          style={{ animationDelay: '1.2s' }}
-        />
-      </div>
-
-      <div className="relative z-10 flex items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
-        <Link
-          to="/"
-          className="group inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-white/80 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:text-emerald-700 hover:shadow-md"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
-
-          Back to Home
-        </Link>
-
-        <Link
-          to="/"
-          className="hidden items-center gap-2 text-lg font-black tracking-tight text-emerald-700 sm:flex"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20">
-            <ShoppingBag className="h-5 w-5" />
-          </span>
-
-          Sinomart
-        </Link>
-      </div>
-
-      <div className="relative z-10 flex min-h-[calc(100vh-90px)] items-center justify-center px-5 pb-10 pt-4 sm:px-6">
+      {/* Main */}
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
         <div className="w-full max-w-md">
-          <div className="mb-7 flex justify-center sm:hidden">
+          {/* Mobile brand */}
+          <div className="mb-6 flex justify-center sm:hidden">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 text-2xl font-black tracking-tight text-emerald-700"
+              className="flex items-center gap-2.5"
+              aria-label="Sinomart home"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20">
-                <ShoppingBag className="h-6 w-6" />
+              <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <img
+                  src={sinomartLogo}
+                  alt="Sinomart"
+                  className="h-full w-full object-contain"
+                />
               </span>
 
-              Sinomart
+              <span className="text-xl font-black tracking-tight text-ink-900">
+                Sinomart
+              </span>
             </Link>
           </div>
 
-          <div className="rounded-[2rem] border border-white/80 bg-white/90 p-6 shadow-[0_25px_80px_-25px_rgba(16,185,129,0.25)] backdrop-blur-xl sm:p-9">
-            <div className="mb-7 text-center">
-              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
-                <ShoppingBag className="h-6 w-6" />
-              </div>
+          {/* Card */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className="mb-7">
+              <p className="mb-2 text-sm font-semibold text-brand-600">
+                Join Sinomart
+              </p>
 
-              <h1 className="text-3xl font-black tracking-tight text-gray-900">
+              <h1 className="text-2xl font-black tracking-tight text-ink-900 sm:text-3xl">
                 Create your account
               </h1>
 
-              <p className="mt-2 text-sm leading-6 text-gray-500">
-                Join Sinomart and make your next shopping trip a little easier.
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Create an account to manage your orders,
+                saved products, and profile.
               </p>
             </div>
 
+            {/* Google */}
             <Button
               type="button"
               variant="outline"
               onClick={handleGoogleSignUp}
               disabled={isLoading}
-              className="h-12 w-full rounded-xl border-gray-200 bg-white font-semibold text-gray-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md"
+              className="h-11 w-full rounded-xl border-slate-200 bg-white font-semibold text-slate-700 shadow-none hover:bg-slate-50"
             >
               {googleLoading ? (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <svg
                   className="mr-2 h-5 w-5"
@@ -272,33 +261,38 @@ export function SignupPage() {
                 </svg>
               )}
 
-              {googleLoading ? 'Connecting...' : 'Continue with Google'}
+              {googleLoading
+                ? 'Connecting...'
+                : 'Continue with Google'}
             </Button>
 
-            <div className="my-7 flex items-center gap-4">
-              <div className="h-px flex-1 bg-gray-200" />
+            {/* Divider */}
+            <div className="my-6 flex items-center gap-4">
+              <div className="h-px flex-1 bg-slate-200" />
 
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                or sign up with email
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Or
               </span>
 
-              <div className="h-px flex-1 bg-gray-200" />
+              <div className="h-px flex-1 bg-slate-200" />
             </div>
 
+            {/* Form */}
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-4"
             >
+              {/* Full name */}
               <div className="space-y-2">
                 <Label
                   htmlFor="fullName"
-                  className="text-sm font-semibold text-gray-700"
+                  className="text-sm font-semibold text-slate-700"
                 >
                   Full name
                 </Label>
 
                 <div className="relative">
-                  <User className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <User className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
 
                   <Input
                     id="fullName"
@@ -307,10 +301,12 @@ export function SignupPage() {
                     placeholder="Your full name"
                     {...register('fullName')}
                     disabled={isLoading}
-                    aria-invalid={Boolean(formState.errors.fullName)}
-                    className={`h-12 rounded-xl border-gray-200 bg-gray-50/70 pl-11 pr-4 transition-all focus:border-emerald-500 focus:bg-white focus:ring-emerald-500 ${
+                    aria-invalid={Boolean(
+                      formState.errors.fullName,
+                    )}
+                    className={`h-11 rounded-xl border-slate-200 bg-white pl-10 pr-4 text-sm shadow-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-brand-500/20 ${
                       formState.errors.fullName
-                        ? 'border-red-400 focus:border-red-400'
+                        ? 'border-red-400 focus:border-red-400 focus:ring-red-500/20'
                         : ''
                     }`}
                   />
@@ -323,16 +319,17 @@ export function SignupPage() {
                 )}
               </div>
 
+              {/* Email */}
               <div className="space-y-2">
                 <Label
                   htmlFor="email"
-                  className="text-sm font-semibold text-gray-700"
+                  className="text-sm font-semibold text-slate-700"
                 >
                   Email address
                 </Label>
 
                 <div className="relative">
-                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
 
                   <Input
                     id="email"
@@ -341,10 +338,12 @@ export function SignupPage() {
                     placeholder="you@example.com"
                     {...register('email')}
                     disabled={isLoading}
-                    aria-invalid={Boolean(formState.errors.email)}
-                    className={`h-12 rounded-xl border-gray-200 bg-gray-50/70 pl-11 pr-4 transition-all focus:border-emerald-500 focus:bg-white focus:ring-emerald-500 ${
+                    aria-invalid={Boolean(
+                      formState.errors.email,
+                    )}
+                    className={`h-11 rounded-xl border-slate-200 bg-white pl-10 pr-4 text-sm shadow-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-brand-500/20 ${
                       formState.errors.email
-                        ? 'border-red-400 focus:border-red-400'
+                        ? 'border-red-400 focus:border-red-400 focus:ring-red-500/20'
                         : ''
                     }`}
                   />
@@ -357,16 +356,17 @@ export function SignupPage() {
                 )}
               </div>
 
+              {/* Phone */}
               <div className="space-y-2">
                 <Label
                   htmlFor="phone"
-                  className="text-sm font-semibold text-gray-700"
+                  className="text-sm font-semibold text-slate-700"
                 >
                   Phone number
                 </Label>
 
                 <div className="relative">
-                  <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
 
                   <Input
                     id="phone"
@@ -375,10 +375,12 @@ export function SignupPage() {
                     placeholder="0800 000 0000"
                     {...register('phone')}
                     disabled={isLoading}
-                    aria-invalid={Boolean(formState.errors.phone)}
-                    className={`h-12 rounded-xl border-gray-200 bg-gray-50/70 pl-11 pr-4 transition-all focus:border-emerald-500 focus:bg-white focus:ring-emerald-500 ${
+                    aria-invalid={Boolean(
+                      formState.errors.phone,
+                    )}
+                    className={`h-11 rounded-xl border-slate-200 bg-white pl-10 pr-4 text-sm shadow-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-brand-500/20 ${
                       formState.errors.phone
-                        ? 'border-red-400 focus:border-red-400'
+                        ? 'border-red-400 focus:border-red-400 focus:ring-red-500/20'
                         : ''
                     }`}
                   />
@@ -391,28 +393,33 @@ export function SignupPage() {
                 )}
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <Label
                   htmlFor="password"
-                  className="text-sm font-semibold text-gray-700"
+                  className="text-sm font-semibold text-slate-700"
                 >
                   Password
                 </Label>
 
                 <div className="relative">
-                  <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
 
                   <Input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={
+                      showPassword ? 'text' : 'password'
+                    }
                     autoComplete="new-password"
                     placeholder="Create a password"
                     {...register('password')}
                     disabled={isLoading}
-                    aria-invalid={Boolean(formState.errors.password)}
-                    className={`h-12 rounded-xl border-gray-200 bg-gray-50/70 pl-11 pr-12 transition-all focus:border-emerald-500 focus:bg-white focus:ring-emerald-500 ${
+                    aria-invalid={Boolean(
+                      formState.errors.password,
+                    )}
+                    className={`h-11 rounded-xl border-slate-200 bg-white pl-10 pr-11 text-sm shadow-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-brand-500/20 ${
                       formState.errors.password
-                        ? 'border-red-400 focus:border-red-400'
+                        ? 'border-red-400 focus:border-red-400 focus:ring-red-500/20'
                         : ''
                     }`}
                   />
@@ -420,18 +427,22 @@ export function SignupPage() {
                   <button
                     type="button"
                     onClick={() =>
-                      setShowPassword((current) => !current)
+                      setShowPassword(
+                        (current) => !current,
+                      )
                     }
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                     aria-label={
-                      showPassword ? 'Hide password' : 'Show password'
+                      showPassword
+                        ? 'Hide password'
+                        : 'Show password'
                     }
                     aria-pressed={showPassword}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
+                      <EyeOff className="h-4.5 w-4.5" />
                     ) : (
-                      <Eye className="h-5 w-5" />
+                      <Eye className="h-4.5 w-4.5" />
                     )}
                   </button>
                 </div>
@@ -442,72 +453,77 @@ export function SignupPage() {
                   </p>
                 )}
 
+                {/* Password requirements */}
                 {password.length > 0 && (
-                  <div className="rounded-xl bg-gray-50 px-3.5 py-3">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3">
                     <div className="space-y-2">
-                      {passwordRequirements.map((requirement) => (
-                        <div
-                          key={requirement.label}
-                          className="flex items-center gap-2 text-xs"
-                        >
-                          <span
-                            className={`flex h-4 w-4 items-center justify-center rounded-full ${
-                              requirement.valid
-                                ? 'bg-emerald-100 text-emerald-600'
-                                : 'bg-gray-200 text-gray-400'
-                            }`}
+                      {passwordRequirements.map(
+                        (requirement) => (
+                          <div
+                            key={requirement.label}
+                            className="flex items-center gap-2 text-xs"
                           >
-                            <Check className="h-2.5 w-2.5" />
-                          </span>
+                            <span
+                              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
+                                requirement.valid
+                                  ? 'bg-brand-100 text-brand-600'
+                                  : 'bg-slate-200 text-slate-400'
+                              }`}
+                            >
+                              <Check className="h-2.5 w-2.5" />
+                            </span>
 
-                          <span
-                            className={
-                              requirement.valid
-                                ? 'font-medium text-emerald-700'
-                                : 'text-gray-500'
-                            }
-                          >
-                            {requirement.label}
-                          </span>
-                        </div>
-                      ))}
+                            <span
+                              className={
+                                requirement.valid
+                                  ? 'font-medium text-brand-700'
+                                  : 'text-slate-500'
+                              }
+                            >
+                              {requirement.label}
+                            </span>
+                          </div>
+                        ),
+                      )}
                     </div>
                   </div>
                 )}
               </div>
 
+              {/* Submit */}
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="group mt-2 h-12 w-full rounded-xl bg-emerald-600 font-bold text-white shadow-lg shadow-emerald-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-600/25 disabled:cursor-not-allowed disabled:opacity-70"
+                className="group mt-2 h-11 w-full rounded-xl bg-brand-600 font-bold text-white shadow-sm hover:bg-brand-700"
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Creating account...
                   </>
                 ) : (
                   <>
                     Create account
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </>
                 )}
               </Button>
             </form>
 
-            <p className="mt-7 text-center text-sm text-gray-500">
+            {/* Login */}
+            <p className="mt-7 text-center text-sm text-slate-500">
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-bold text-emerald-600 transition-colors hover:text-emerald-700"
+                className="font-bold text-brand-600 hover:text-brand-700"
               >
                 Sign in
               </Link>
             </p>
-          </div>
+          </section>
 
-          <p className="mt-6 text-center text-xs font-medium text-gray-400">
-            Shop smarter. Shop Sinomart. 🛍️
+          <p className="mt-5 text-center text-xs text-slate-400">
+            Shop smarter. Shop Sinomart.
           </p>
         </div>
       </div>
