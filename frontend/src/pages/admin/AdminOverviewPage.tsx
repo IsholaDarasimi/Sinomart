@@ -201,11 +201,11 @@ function LoadingCard({
   className?: string
 }) {
   return (
-    <Card className={cn('overflow-hidden', className)}>
-      <CardContent className="space-y-4 p-5">
-        <div className="h-4 w-28 animate-pulse rounded bg-ink-900/8" />
-        <div className="h-8 w-40 animate-pulse rounded bg-ink-900/8" />
-        <div className="h-3 w-24 animate-pulse rounded bg-ink-900/8" />
+    <Card className={cn('min-w-0 overflow-hidden', className)}>
+      <CardContent className="space-y-4 p-4 sm:p-5">
+        <div className="h-4 w-24 animate-pulse rounded bg-ink-900/8 sm:w-28" />
+        <div className="h-7 w-32 animate-pulse rounded bg-ink-900/8 sm:h-8 sm:w-40" />
+        <div className="h-3 w-20 animate-pulse rounded bg-ink-900/8 sm:w-24" />
       </CardContent>
     </Card>
   )
@@ -223,8 +223,8 @@ function SectionLoading({
         height,
       )}
     >
-      <div className="flex items-center gap-2 text-sm text-ink-500">
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+      <div className="flex items-center gap-2 text-center text-sm text-ink-500">
+        <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
         Loading analytics...
       </div>
     </div>
@@ -241,8 +241,8 @@ function EmptyState({
   description: string
 }) {
   return (
-    <div className="flex min-h-40 flex-col items-center justify-center text-center">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-ink-900/5">
+    <div className="flex min-h-40 flex-col items-center justify-center px-2 text-center">
+      <div className="mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink-900/5">
         <Icon className="h-5 w-5 text-ink-500" />
       </div>
 
@@ -250,7 +250,7 @@ function EmptyState({
         {title}
       </p>
 
-      <p className="mt-1 max-w-sm text-xs text-ink-500">
+      <p className="mt-1 max-w-sm text-xs leading-5 text-ink-500">
         {description}
       </p>
     </div>
@@ -263,14 +263,14 @@ function ErrorState({
   message?: string
 }) {
   return (
-    <div className="flex min-h-40 flex-col items-center justify-center text-center">
+    <div className="flex min-h-40 flex-col items-center justify-center px-2 text-center">
       <AlertTriangle className="mb-2 h-5 w-5 text-red-500" />
 
       <p className="text-sm font-medium text-ink-900">
         Analytics unavailable
       </p>
 
-      <p className="mt-1 text-xs text-ink-500">
+      <p className="mt-1 max-w-sm text-xs leading-5 text-ink-500">
         {message}
       </p>
     </div>
@@ -289,19 +289,19 @@ function SectionHeader({
   action?: React.ReactNode
 }) {
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex min-w-0 items-start gap-3">
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-600">
+    <div className="flex min-w-0 items-start justify-between gap-3 sm:gap-4">
+      <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-600 sm:h-9 sm:w-9">
           <Icon className="h-4 w-4" />
         </div>
 
         <div className="min-w-0">
-          <h2 className="text-base font-semibold text-ink-900">
+          <h2 className="truncate text-sm font-semibold text-ink-900 sm:text-base">
             {title}
           </h2>
 
           {description && (
-            <p className="mt-0.5 text-xs text-ink-500">
+            <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-ink-500">
               {description}
             </p>
           )}
@@ -323,13 +323,16 @@ function MiniMetric({
   icon: React.ElementType
 }) {
   return (
-    <div className="rounded-lg border border-ink-900/8 bg-ink-900/[0.02] p-3">
-      <div className="flex items-center gap-2 text-xs text-ink-500">
-        <Icon className="h-3.5 w-3.5" />
-        {label}
+    <div className="min-w-0 rounded-lg border border-ink-900/8 bg-ink-900/[0.02] p-3">
+      <div className="flex min-w-0 items-center gap-1.5 text-xs text-ink-500 sm:gap-2">
+        <Icon className="h-3.5 w-3.5 shrink-0" />
+
+        <span className="truncate">
+          {label}
+        </span>
       </div>
 
-      <p className="mt-1.5 text-lg font-semibold text-ink-900">
+      <p className="mt-1.5 truncate text-base font-semibold text-ink-900 sm:text-lg">
         {value}
       </p>
     </div>
@@ -355,7 +358,7 @@ function InsightCard({
   }
 
   return (
-    <div className="rounded-xl border border-ink-900/8 bg-white p-4 transition-all hover:-translate-y-0.5 hover:shadow-sm">
+    <div className="min-w-0 rounded-xl border border-ink-900/8 bg-white p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-sm sm:p-4">
       <div
         className={cn(
           'mb-3 flex h-9 w-9 items-center justify-center rounded-lg',
@@ -384,9 +387,16 @@ function ViewAll({
   return (
     <Link
       to={to}
-      className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-brand-600 transition-colors hover:text-brand-700"
+      className="inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-brand-600 transition-colors hover:text-brand-700 sm:gap-1"
     >
-      View all
+      <span className="hidden sm:inline">
+        View all
+      </span>
+
+      <span className="sm:hidden">
+        View
+      </span>
+
       <ChevronRight className="h-3.5 w-3.5" />
     </Link>
   )
@@ -1808,22 +1818,24 @@ export function AdminOverviewPage() {
   }
 
   return (
-    <div className="space-y-8 pb-12">
-      <section className="relative overflow-hidden rounded-2xl border border-ink-900/8 bg-white p-5 shadow-sm sm:p-6">
-        <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-brand-500/5 blur-3xl" />
+    <div className="min-w-0 max-w-full space-y-5 overflow-x-hidden pb-8 sm:space-y-8 sm:pb-12">
+      <section className="relative min-w-0 overflow-hidden rounded-2xl border border-ink-900/8 bg-white p-4 shadow-sm sm:p-6">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-brand-500/5 blur-3xl sm:-right-8 sm:-top-8 sm:h-48 sm:w-48" />
 
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-brand-500/15 bg-brand-500/5 px-3 py-1 text-xs font-medium text-brand-700">
-              <Activity className="h-3.5 w-3.5" />
-              Business command center
+        <div className="relative flex min-w-0 flex-col gap-5">
+          <div className="min-w-0">
+            <div className="mb-2 inline-flex max-w-full items-center gap-2 rounded-full border border-brand-500/15 bg-brand-500/5 px-2.5 py-1 text-xs font-medium text-brand-700 sm:px-3">
+              <Activity className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">
+                Business command center
+              </span>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
+            <h1 className="text-xl font-bold tracking-tight text-ink-900 sm:text-3xl">
               Analytics Dashboard
             </h1>
 
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-ink-500">
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-ink-500 sm:text-sm sm:leading-6">
               Monitor Sinomart&apos;s revenue,
               orders, customers, products,
               delivery operations and demand
@@ -1831,8 +1843,8 @@ export function AdminOverviewPage() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex flex-wrap gap-1 rounded-lg border border-ink-900/8 bg-ink-900/[0.02] p-1">
+          <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="grid w-full min-w-0 grid-cols-2 gap-1 rounded-lg border border-ink-900/8 bg-ink-900/[0.02] p-1 sm:grid-cols-5 lg:w-auto">
               {(
                 [
                   ['7d', '7 Days'],
@@ -1849,13 +1861,15 @@ export function AdminOverviewPage() {
                     setRangeType(value)
                   }
                   className={cn(
-                    'rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
+                    'min-w-0 rounded-md px-2 py-2.5 text-xs font-medium transition-colors sm:px-3 sm:py-2',
                     rangeType === value
                       ? 'bg-white text-brand-700 shadow-sm'
                       : 'text-ink-500 hover:text-ink-900',
                   )}
                 >
-                  {label}
+                  <span className="block truncate">
+                    {label}
+                  </span>
                 </button>
               ))}
             </div>
@@ -1864,34 +1878,40 @@ export function AdminOverviewPage() {
               type="button"
               onClick={handleDownloadReport}
               disabled={isLoading}
-              className="gap-2"
+              className="h-10 w-full gap-2 sm:h-11 lg:w-auto"
             >
-              <Download className="h-4 w-4" />
-              Download Report
+              <Download className="h-4 w-4 shrink-0" />
+              <span>Download Report</span>
             </Button>
           </div>
         </div>
 
-        <div className="relative mt-5 flex flex-wrap items-center gap-2 text-xs text-ink-500">
-          <Badge variant="default">
+        <div className="relative mt-4 flex min-w-0 flex-wrap items-center gap-2 text-xs text-ink-500 sm:mt-5">
+          <Badge
+            variant="default"
+            className="shrink-0"
+          >
             {range.label}
           </Badge>
 
-          <span>
+          <span className="min-w-0 truncate">
             {formatReportDate(range.start)}
             {' → '}
             {formatReportDate(range.end)}
           </span>
 
           {hasPageError && (
-            <Badge variant="warning">
+            <Badge
+              variant="warning"
+              className="shrink-0"
+            >
               Some data unavailable
             </Badge>
           )}
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+      <section className="grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 xl:grid-cols-6">
         {overview.isLoading ? (
           <>
             <LoadingCard />
@@ -1902,8 +1922,8 @@ export function AdminOverviewPage() {
             <LoadingCard />
           </>
         ) : overview.isError ? (
-          <Card className="col-span-full">
-            <CardContent className="p-6">
+          <Card className="col-span-full min-w-0">
+            <CardContent className="p-4 sm:p-6">
               <ErrorState message="The analytics overview could not be loaded." />
             </CardContent>
           </Card>
@@ -1973,7 +1993,7 @@ export function AdminOverviewPage() {
         )}
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
         <MiniMetric
           icon={ShoppingBag}
           label="Total Orders"
@@ -1999,9 +2019,9 @@ export function AdminOverviewPage() {
         />
       </section>
 
-      <section>
-        <Card className="overflow-hidden">
-          <CardHeader>
+      <section className="min-w-0">
+        <Card className="min-w-0 overflow-hidden">
+          <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={CircleDollarSign}
               title="Revenue Performance"
@@ -2012,7 +2032,7 @@ export function AdminOverviewPage() {
             />
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="min-w-0 p-4 pt-0 sm:p-6 sm:pt-0">
             {salesSeries.isLoading ? (
               <SectionLoading />
             ) : salesSeries.isError ? (
@@ -2024,8 +2044,8 @@ export function AdminOverviewPage() {
                 description="Revenue performance will appear when sales are recorded."
               />
             ) : (
-              <div className="space-y-5">
-                <div className="h-80">
+              <div className="min-w-0 space-y-5">
+                <div className="h-60 min-w-0 sm:h-80">
                   <ResponsiveContainer
                     width="100%"
                     height="100%"
@@ -2034,9 +2054,9 @@ export function AdminOverviewPage() {
                       data={revenueChartData}
                       margin={{
                         top: 10,
-                        right: 15,
-                        left: 10,
-                        bottom: 10,
+                        right: 5,
+                        left: -15,
+                        bottom: 5,
                       }}
                     >
                       <CartesianGrid
@@ -2048,10 +2068,11 @@ export function AdminOverviewPage() {
                       <XAxis
                         dataKey="label"
                         tickFormatter={formatChartLabel}
-                        fontSize={11}
+                        fontSize={10}
                         tickLine={false}
                         axisLine={false}
                         minTickGap={20}
+                        tickMargin={6}
                       />
 
                       <YAxis
@@ -2070,10 +2091,11 @@ export function AdminOverviewPage() {
                         tickFormatter={
                           formatCompactNaira
                         }
-                        fontSize={11}
+                        fontSize={9}
                         tickLine={false}
                         axisLine={false}
-                        width={65}
+                        width={55}
+                        tickMargin={2}
                       />
 
                       <Tooltip
@@ -2115,9 +2137,9 @@ export function AdminOverviewPage() {
                         dataKey="revenue"
                         name="revenue"
                         stroke={CHART_COLOR}
-                        strokeWidth={3}
+                        strokeWidth={2.5}
                         dot={{
-                          r: 3,
+                          r: 2.5,
                         }}
                         activeDot={{
                           r: 5,
@@ -2127,7 +2149,7 @@ export function AdminOverviewPage() {
                   </ResponsiveContainer>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
                   <MiniMetric
                     icon={CircleDollarSign}
                     label="Total Revenue"
@@ -2166,9 +2188,9 @@ export function AdminOverviewPage() {
         </Card>
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
+      <section className="grid min-w-0 gap-4 xl:grid-cols-2">
+        <Card className="min-w-0">
+          <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={ShoppingBag}
               title="Best Sellers"
@@ -2179,7 +2201,7 @@ export function AdminOverviewPage() {
             />
           </CardHeader>
 
-          <CardContent className="space-y-2">
+          <CardContent className="min-w-0 space-y-2 p-4 pt-0 sm:p-6 sm:pt-0">
             {products.isLoading ? (
               <SectionLoading height="h-72" />
             ) : products.isError ? (
@@ -2198,20 +2220,20 @@ export function AdminOverviewPage() {
                       product.product_id,
                       `product-${index}`,
                     )}
-                    className="flex items-center gap-3 rounded-lg border border-transparent p-2 transition-all hover:border-ink-900/8 hover:bg-ink-900/[0.02]"
+                    className="flex min-w-0 items-center gap-2.5 rounded-lg border border-transparent p-2 transition-all hover:border-ink-900/8 hover:bg-ink-900/[0.02] sm:gap-3"
                   >
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
                       {index + 1}
                     </span>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-ink-900">
+                      <p className="truncate text-xs font-medium text-ink-900 sm:text-sm">
                         {asString(
                           product.product_name,
                         )}
                       </p>
 
-                      <p className="mt-0.5 text-xs text-ink-500">
+                      <p className="mt-0.5 truncate text-[11px] text-ink-500 sm:text-xs">
                         {asNumber(
                           product.units_sold,
                         ).toLocaleString()}{' '}
@@ -2223,8 +2245,8 @@ export function AdminOverviewPage() {
                       </p>
                     </div>
 
-                    <div className="text-right">
-                      <p className="text-sm font-semibold text-ink-900">
+                    <div className="min-w-0 max-w-[90px] text-right sm:max-w-none">
+                      <p className="truncate text-xs font-semibold text-ink-900 sm:text-sm">
                         {formatNaira(
                           asNumber(
                             product.revenue,
@@ -2232,7 +2254,7 @@ export function AdminOverviewPage() {
                         )}
                       </p>
 
-                      <p className="text-xs text-ink-500">
+                      <p className="truncate text-[11px] text-ink-500 sm:text-xs">
                         {formatNaira(
                           asNumber(
                             product.average_selling_price,
@@ -2248,8 +2270,8 @@ export function AdminOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="min-w-0">
+          <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Boxes}
               title="Category Ranking"
@@ -2260,7 +2282,7 @@ export function AdminOverviewPage() {
             />
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="min-w-0 p-4 pt-0 sm:p-6 sm:pt-0">
             {categories.isLoading ? (
               <SectionLoading height="h-72" />
             ) : categories.isError ? (
@@ -2280,20 +2302,20 @@ export function AdminOverviewPage() {
                         category.category_id,
                         `category-${index}`,
                       )}
-                      className="flex items-center gap-3 rounded-lg border border-ink-900/8 p-3"
+                      className="flex min-w-0 items-center gap-2.5 rounded-lg border border-ink-900/8 p-2.5 sm:gap-3 sm:p-3"
                     >
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
                         {index + 1}
                       </span>
 
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-ink-900">
+                        <p className="truncate text-xs font-medium text-ink-900 sm:text-sm">
                           {asString(
                             category.category_name,
                           )}
                         </p>
 
-                        <p className="text-xs text-ink-500">
+                        <p className="truncate text-[11px] text-ink-500 sm:text-xs">
                           {asNumber(
                             category.orders,
                           ).toLocaleString()}{' '}
@@ -2305,8 +2327,8 @@ export function AdminOverviewPage() {
                         </p>
                       </div>
 
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-ink-900">
+                      <div className="min-w-0 max-w-[90px] text-right sm:max-w-none">
+                        <p className="truncate text-xs font-semibold text-ink-900 sm:text-sm">
                           {formatNaira(
                             asNumber(
                               category.revenue,
@@ -2314,7 +2336,7 @@ export function AdminOverviewPage() {
                           )}
                         </p>
 
-                        <p className="text-xs text-ink-500">
+                        <p className="text-[11px] text-ink-500 sm:text-xs">
                           {percent(
                             category.revenue_share_pct,
                           )}
@@ -2329,9 +2351,9 @@ export function AdminOverviewPage() {
         </Card>
       </section>
 
-      <section>
-        <Card className="overflow-hidden">
-          <CardHeader>
+      <section className="min-w-0">
+        <Card className="min-w-0 overflow-hidden">
+          <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Boxes}
               title="Category Revenue"
@@ -2342,7 +2364,7 @@ export function AdminOverviewPage() {
             />
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="min-w-0 p-4 pt-0 sm:p-6 sm:pt-0">
             {categories.isLoading ? (
               <SectionLoading />
             ) : categories.isError ? (
@@ -2354,7 +2376,7 @@ export function AdminOverviewPage() {
                 description="Category revenue will appear after successful sales."
               />
             ) : (
-              <div className="h-80">
+              <div className="h-64 min-w-0 sm:h-80">
                 <ResponsiveContainer
                   width="100%"
                   height="100%"
@@ -2363,9 +2385,9 @@ export function AdminOverviewPage() {
                     data={categoryChartData}
                     margin={{
                       top: 10,
-                      right: 15,
-                      left: 10,
-                      bottom: 45,
+                      right: 5,
+                      left: -15,
+                      bottom: 50,
                     }}
                   >
                     <CartesianGrid
@@ -2379,19 +2401,20 @@ export function AdminOverviewPage() {
                       angle={-30}
                       textAnchor="end"
                       interval={0}
-                      fontSize={10}
+                      fontSize={9}
                       tickLine={false}
                       axisLine={false}
+                      height={55}
                     />
 
                     <YAxis
                       tickFormatter={
                         formatCompactNaira
                       }
-                      fontSize={11}
+                      fontSize={9}
                       tickLine={false}
                       axisLine={false}
-                      width={65}
+                      width={55}
                     />
 
                     <Tooltip
@@ -2421,9 +2444,9 @@ export function AdminOverviewPage() {
         </Card>
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
+      <section className="grid min-w-0 gap-4 xl:grid-cols-2">
+        <Card className="min-w-0">
+          <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Users}
               title="Customer Intelligence"
@@ -2434,8 +2457,8 @@ export function AdminOverviewPage() {
             />
           </CardHeader>
 
-          <CardContent>
-            <div className="mb-4 grid grid-cols-2 gap-3">
+          <CardContent className="min-w-0 p-4 pt-0 sm:p-6 sm:pt-0">
+            <div className="mb-4 grid grid-cols-2 gap-2.5 sm:gap-3">
               <MiniMetric
                 icon={Users}
                 label="Total Customers"
@@ -2486,21 +2509,21 @@ export function AdminOverviewPage() {
                           customer.customer_id,
                           `customer-${index}`,
                         )}
-                        className="flex items-center gap-3 rounded-lg border border-ink-900/8 p-3"
+                        className="flex min-w-0 items-center gap-2.5 rounded-lg border border-ink-900/8 p-2.5 sm:gap-3 sm:p-3"
                       >
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
                           {index + 1}
                         </span>
 
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-ink-900">
+                          <p className="truncate text-xs font-medium text-ink-900 sm:text-sm">
                             {asString(
                               customer.customer_name,
                               'Customer',
                             )}
                           </p>
 
-                          <p className="text-xs text-ink-500">
+                          <p className="truncate text-[11px] text-ink-500 sm:text-xs">
                             {asNumber(
                               customer.orders,
                             ).toLocaleString()}{' '}
@@ -2513,7 +2536,7 @@ export function AdminOverviewPage() {
                           </p>
                         </div>
 
-                        <span className="text-sm font-semibold text-ink-900">
+                        <span className="max-w-[90px] truncate text-right text-xs font-semibold text-ink-900 sm:max-w-none sm:text-sm">
                           {formatNaira(
                             asNumber(
                               customer.revenue,
@@ -2528,8 +2551,8 @@ export function AdminOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="min-w-0">
+          <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Search}
               title="Demand Gaps"
@@ -2540,7 +2563,7 @@ export function AdminOverviewPage() {
             />
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="min-w-0 p-4 pt-0 sm:p-6 sm:pt-0">
             <div className="mb-4 rounded-lg border border-amber-500/15 bg-amber-500/[0.04] p-3">
               <p className="text-xs leading-5 text-ink-500">
                 Search logs are treated as demand
@@ -2575,15 +2598,15 @@ export function AdminOverviewPage() {
                           item.normalized_query,
                           'search',
                         )}-${index}`}
-                        className="rounded-lg border border-ink-900/8 p-3"
+                        className="min-w-0 rounded-lg border border-ink-900/8 p-2.5 sm:p-3"
                       >
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
+                          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
                             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
                               {index + 1}
                             </span>
 
-                            <p className="truncate text-sm font-medium text-ink-900">
+                            <p className="min-w-0 truncate text-xs font-medium text-ink-900 sm:text-sm">
                               {asString(
                                 item.normalized_query,
                               )}
@@ -2596,6 +2619,7 @@ export function AdminOverviewPage() {
                                 ? 'warning'
                                 : 'default'
                             }
+                            className="shrink-0 text-[10px] sm:text-xs"
                           >
                             {asNumber(
                               item.search_count,
@@ -2604,22 +2628,22 @@ export function AdminOverviewPage() {
                           </Badge>
                         </div>
 
-                        <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-ink-500">
-                          <span>
+                        <div className="mt-2 grid grid-cols-3 gap-1.5 text-[10px] leading-4 text-ink-500 sm:gap-2 sm:text-xs">
+                          <span className="min-w-0 truncate">
                             {asNumber(
                               item.zero_result_searches,
                             ).toLocaleString()}{' '}
                             no results
                           </span>
 
-                          <span>
+                          <span className="min-w-0 truncate">
                             {percent(
                               zeroRate,
                             )}{' '}
                             no-result
                           </span>
 
-                          <span>
+                          <span className="min-w-0 truncate">
                             {asNumber(
                               item.product_clicks,
                             ).toLocaleString()}{' '}
@@ -2636,9 +2660,9 @@ export function AdminOverviewPage() {
         </Card>
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
+      <section className="grid min-w-0 gap-4 xl:grid-cols-2">
+        <Card className="min-w-0">
+          <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Truck}
               title="Delivery Performance"
@@ -2649,7 +2673,7 @@ export function AdminOverviewPage() {
             />
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="min-w-0 p-4 pt-0 sm:p-6 sm:pt-0">
             {delivery.isLoading ? (
               <SectionLoading height="h-72" />
             ) : delivery.isError ? (
@@ -2661,8 +2685,8 @@ export function AdminOverviewPage() {
                 description="Delivery analytics will appear when delivery orders are recorded."
               />
             ) : (
-              <div className="space-y-4">
-                <div className="h-56">
+              <div className="min-w-0 space-y-4">
+                <div className="h-52 min-w-0 sm:h-56">
                   <ResponsiveContainer
                     width="100%"
                     height="100%"
@@ -2671,9 +2695,9 @@ export function AdminOverviewPage() {
                       data={deliveryChartData}
                       margin={{
                         top: 10,
-                        right: 10,
-                        left: 0,
-                        bottom: 10,
+                        right: 5,
+                        left: -15,
+                        bottom: 5,
                       }}
                     >
                       <CartesianGrid
@@ -2684,16 +2708,18 @@ export function AdminOverviewPage() {
 
                       <XAxis
                         dataKey="name"
-                        fontSize={10}
+                        fontSize={9}
                         tickLine={false}
                         axisLine={false}
+                        tickMargin={6}
                       />
 
                       <YAxis
                         allowDecimals={false}
-                        fontSize={11}
+                        fontSize={9}
                         tickLine={false}
                         axisLine={false}
+                        width={40}
                       />
 
                       <Tooltip />
@@ -2723,25 +2749,25 @@ export function AdminOverviewPage() {
                             item.zone_id,
                             `zone-${index}`,
                           )}
-                          className="rounded-lg border border-ink-900/8 p-3"
+                          className="min-w-0 rounded-lg border border-ink-900/8 p-3"
                         >
-                          <div className="flex items-center justify-between">
-                            <p className="truncate text-sm font-medium text-ink-900">
+                          <div className="flex min-w-0 items-center justify-between gap-3">
+                            <p className="min-w-0 truncate text-xs font-medium text-ink-900 sm:text-sm">
                               {asString(
                                 item.zone_name,
                                 'Configured zone',
                               )}
                             </p>
 
-                            <span className="text-sm font-semibold text-ink-900">
+                            <span className="shrink-0 text-xs font-semibold text-ink-900 sm:text-sm">
                               {asNumber(
                                 item.delivery_orders,
                               ).toLocaleString()}
                             </span>
                           </div>
 
-                          <div className="mt-2 flex justify-between text-xs text-ink-500">
-                            <span>
+                          <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-ink-500 sm:text-xs">
+                            <span className="truncate">
                               {formatNaira(
                                 asNumber(
                                   item.delivery_revenue,
@@ -2749,7 +2775,7 @@ export function AdminOverviewPage() {
                               )}
                             </span>
 
-                            <span>
+                            <span className="shrink-0">
                               {percent(
                                 item.fulfillment_rate_pct,
                               )}
@@ -2764,8 +2790,8 @@ export function AdminOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="min-w-0">
+          <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={MapPin}
               title="Delivery Geography"
@@ -2776,7 +2802,7 @@ export function AdminOverviewPage() {
             />
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="min-w-0 p-4 pt-0 sm:p-6 sm:pt-0">
             {lgas.isLoading ? (
               <SectionLoading height="h-72" />
             ) : lgas.isError ? (
@@ -2798,21 +2824,21 @@ export function AdminOverviewPage() {
                           item.lga,
                           'LGA',
                         )}-${index}`}
-                        className="flex items-center gap-3 rounded-lg border border-ink-900/8 p-3"
+                        className="flex min-w-0 items-center gap-2.5 rounded-lg border border-ink-900/8 p-2.5 sm:gap-3 sm:p-3"
                       >
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
                           {index + 1}
                         </span>
 
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-ink-900">
+                          <p className="truncate text-xs font-medium text-ink-900 sm:text-sm">
                             {asString(
                               item.lga,
                               'Unknown LGA',
                             )}
                           </p>
 
-                          <p className="text-xs text-ink-500">
+                          <p className="truncate text-[11px] text-ink-500 sm:text-xs">
                             {asNumber(
                               item.order_count,
                             ).toLocaleString()}{' '}
@@ -2824,7 +2850,7 @@ export function AdminOverviewPage() {
                           </p>
                         </div>
 
-                        <span className="text-sm font-semibold text-ink-900">
+                        <span className="max-w-[90px] shrink-0 truncate text-right text-xs font-semibold text-ink-900 sm:max-w-none sm:text-sm">
                           {formatNaira(
                             asNumber(
                               item.revenue,
@@ -2840,9 +2866,9 @@ export function AdminOverviewPage() {
         </Card>
       </section>
 
-      <section>
-        <Card className="overflow-hidden">
-          <CardHeader>
+      <section className="min-w-0">
+        <Card className="min-w-0 overflow-hidden">
+          <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Activity}
               title="Business Signals"
@@ -2850,8 +2876,8 @@ export function AdminOverviewPage() {
             />
           </CardHeader>
 
-          <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <CardContent className="min-w-0 p-4 pt-0 sm:p-6 sm:pt-0">
+            <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {successfulOrders > 0 &&
               revenueGrowth != null ? (
                 <InsightCard
@@ -2954,7 +2980,7 @@ export function AdminOverviewPage() {
         </Card>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
         <MiniMetric
           icon={Users}
           label="Customers"
@@ -2980,7 +3006,7 @@ export function AdminOverviewPage() {
         />
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
         <MiniMetric
           icon={Package}
           label="Active Products"
@@ -3008,9 +3034,9 @@ export function AdminOverviewPage() {
         />
       </section>
 
-      <section className="rounded-2xl border border-brand-500/15 bg-brand-500/[0.04] p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+      <section className="min-w-0 rounded-2xl border border-brand-500/15 bg-brand-500/[0.04] p-4 sm:p-6">
+        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
             <p className="text-sm font-semibold text-ink-900">
               Management-ready analytics
             </p>
@@ -3027,19 +3053,24 @@ export function AdminOverviewPage() {
             type="button"
             onClick={handleDownloadReport}
             disabled={isLoading}
-            className="shrink-0 gap-2"
+            className="h-10 w-full shrink-0 gap-2 sm:h-11 sm:w-auto"
           >
-            <Download className="h-4 w-4" />
-            Download Full Analytics Report
+            <Download className="h-4 w-4 shrink-0" />
+            <span className="sm:hidden">
+              Download Report
+            </span>
+            <span className="hidden sm:inline">
+              Download Full Analytics Report
+            </span>
           </Button>
         </div>
       </section>
 
-      <section className="rounded-xl border border-ink-900/8 bg-ink-900/[0.02] p-4 text-xs text-ink-500">
-        <div className="flex items-start gap-3">
+      <section className="min-w-0 rounded-xl border border-ink-900/8 bg-ink-900/[0.02] p-3.5 sm:p-4">
+        <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
           <Activity className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
 
-          <p className="leading-5">
+          <p className="min-w-0 text-xs leading-5 text-ink-500">
             Analytics are calculated from live
             Sinomart database records. Revenue and
             sales metrics use successful payment
