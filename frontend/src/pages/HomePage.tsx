@@ -1,5 +1,3 @@
-
-
 import { motion } from 'framer-motion'
 import { ArrowDown } from 'lucide-react'
 
@@ -48,12 +46,12 @@ export function HomePage() {
                 block: 'start',
               })
           }
-          className="group -mt-1 flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium text-ink-500 transition-colors hover:text-brand-600"
+          className="group -mt-1 flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium text-ink-500 transition-colors duration-200 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:ring-offset-2"
           aria-label="Scroll to categories"
         >
           <span>Explore the store</span>
 
-          <span className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition-all duration-200 group-hover:border-brand-200 group-hover:bg-brand-50">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition-all duration-200 group-hover:border-brand-200 group-hover:bg-brand-50 group-hover:shadow">
             <ArrowDown className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" />
           </span>
         </button>
@@ -62,7 +60,7 @@ export function HomePage() {
       {/* Categories */}
       <section
         id="home-categories"
-        className="scroll-mt-24 pt-5 sm:pt-8 lg:pt-10"
+        className="scroll-mt-20 pt-5 sm:pt-8 lg:scroll-mt-24 lg:pt-10"
       >
         <CategoryGrid />
       </section>
@@ -93,7 +91,11 @@ export function HomePage() {
       <section className="relative mt-10 overflow-hidden bg-brand-50/40 py-8 sm:mt-14 sm:py-10 lg:mt-16 lg:py-12">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-32 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-brand-100/40 blur-3xl"
+          className="pointer-events-none absolute -right-24 top-1/2 h-56 w-56 -translate-y-1/2 rounded-full bg-brand-100/40 blur-3xl sm:-right-32 sm:h-72 sm:w-72"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-20 bottom-0 hidden h-48 w-48 rounded-full bg-brand-100/30 blur-3xl sm:block"
         />
 
         <div className="relative">

@@ -159,7 +159,7 @@ export function SignupPage() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link
             to="/"
-            className="group inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-brand-600"
+            className="group inline-flex items-center gap-2 rounded-md text-sm font-semibold text-slate-600 transition-colors hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
           >
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
             <span>Back to shop</span>
@@ -167,7 +167,7 @@ export function SignupPage() {
 
           <Link
             to="/"
-            className="flex items-center gap-2.5"
+            className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
             aria-label="Sinomart home"
           >
             <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -281,6 +281,7 @@ export function SignupPage() {
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-4"
+              noValidate
             >
               {/* Full name */}
               <div className="space-y-2">
@@ -292,7 +293,7 @@ export function SignupPage() {
                 </Label>
 
                 <div className="relative">
-                  <User className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
+                  <User className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
 
                   <Input
                     id="fullName"
@@ -329,7 +330,7 @@ export function SignupPage() {
                 </Label>
 
                 <div className="relative">
-                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
+                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
 
                   <Input
                     id="email"
@@ -366,7 +367,7 @@ export function SignupPage() {
                 </Label>
 
                 <div className="relative">
-                  <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
+                  <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
 
                   <Input
                     id="phone"
@@ -403,7 +404,7 @@ export function SignupPage() {
                 </Label>
 
                 <div className="relative">
-                  <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
+                  <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
 
                   <Input
                     id="password"
@@ -431,7 +432,7 @@ export function SignupPage() {
                         (current) => !current,
                       )
                     }
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
                     aria-label={
                       showPassword
                         ? 'Hide password'
@@ -440,9 +441,9 @@ export function SignupPage() {
                     aria-pressed={showPassword}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4.5 w-4.5" />
+                      <EyeOff className="h-[18px] w-[18px]" />
                     ) : (
-                      <Eye className="h-4.5 w-4.5" />
+                      <Eye className="h-[18px] w-[18px]" />
                     )}
                   </button>
                 </div>
@@ -464,7 +465,7 @@ export function SignupPage() {
                             className="flex items-center gap-2 text-xs"
                           >
                             <span
-                              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
+                              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${
                                 requirement.valid
                                   ? 'bg-brand-100 text-brand-600'
                                   : 'bg-slate-200 text-slate-400'
@@ -494,7 +495,7 @@ export function SignupPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="group mt-2 h-11 w-full rounded-xl bg-brand-600 font-bold text-white shadow-sm hover:bg-brand-700"
+                className="group mt-2 h-11 w-full rounded-xl bg-brand-600 font-bold text-white shadow-sm transition-colors hover:bg-brand-700"
               >
                 {submitting ? (
                   <>
@@ -515,7 +516,7 @@ export function SignupPage() {
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-bold text-brand-600 hover:text-brand-700"
+                className="rounded-md font-bold text-brand-600 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
               >
                 Sign in
               </Link>

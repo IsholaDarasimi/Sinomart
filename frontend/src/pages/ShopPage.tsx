@@ -160,7 +160,7 @@ export function ShopPage() {
         {/* Mobile controls */}
         <div className="mb-5 flex items-center gap-2 sm:hidden">
           <div className="flex flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
-            <PackageSearch className="h-4 w-4 text-brand-500" />
+            <PackageSearch className="h-4 w-4 shrink-0 text-brand-500" />
 
             <span className="truncate text-sm font-medium text-ink-700">
               {isLoading
@@ -172,10 +172,15 @@ export function ShopPage() {
           <Button
             type="button"
             variant="outline"
-            className="h-11 rounded-xl border-slate-200 bg-white px-3 shadow-sm"
+            className="h-11 shrink-0 rounded-xl border-slate-200 bg-white px-3.5 shadow-sm"
           >
             <SlidersHorizontal className="mr-2 h-4 w-4" />
             Filters
+            {hasActiveFilters && (
+              <span className="ml-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-500 px-1 text-[10px] font-semibold text-white">
+                •
+              </span>
+            )}
           </Button>
         </div>
 
@@ -189,7 +194,7 @@ export function ShopPage() {
           >
             <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-white font-medium shadow-sm">
               <span className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-brand-500" />
+                <Filter className="h-4 w-4 shrink-0 text-brand-500" />
                 <SelectValue />
               </span>
             </SelectTrigger>
@@ -232,7 +237,7 @@ export function ShopPage() {
                         }),
                       )
                     }
-                    className="text-xs font-semibold text-brand-600 transition-colors hover:text-brand-700"
+                    className="rounded-md text-xs font-semibold text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
                   >
                     Clear
                   </button>
@@ -284,13 +289,13 @@ export function ShopPage() {
                     onClick={() =>
                       setPage((current) => Math.max(1, current - 1))
                     }
-                    className="h-10 rounded-xl border-slate-200 px-3 shadow-sm"
+                    className="h-11 rounded-xl border-slate-200 px-3 shadow-sm sm:h-10"
                   >
                     <ChevronLeft className="mr-1 h-4 w-4" />
                     Previous
                   </Button>
 
-                  <div className="flex h-10 min-w-[100px] items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-ink-700 shadow-sm">
+                  <div className="flex h-11 min-w-[100px] items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-ink-700 shadow-sm sm:h-10">
                     <span className="text-brand-600">{page}</span>
                     <span className="mx-1.5 text-ink-400">of</span>
                     <span>{totalPages}</span>
@@ -305,7 +310,7 @@ export function ShopPage() {
                         Math.min(totalPages, current + 1),
                       )
                     }
-                    className="h-10 rounded-xl border-slate-200 px-3 shadow-sm"
+                    className="h-11 rounded-xl border-slate-200 px-3 shadow-sm sm:h-10"
                   >
                     Next
                     <ChevronRight className="ml-1 h-4 w-4" />
