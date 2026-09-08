@@ -17,11 +17,14 @@ import {
   Users,
 } from 'lucide-react'
 import {
+  Area,
   Bar,
   BarChart,
   CartesianGrid,
+  ComposedChart,
+  Legend,
   Line,
-  LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -56,6 +59,9 @@ type DateRange = {
 }
 
 const CHART_COLOR = '#0d5e6f'
+const CHART_COLOR_MERCHANDISE = '#2dd4bf'
+const CHART_COLOR_DELIVERY = '#f59e0b'
+const CHART_COLOR_DELIVERED = '#10b981'
 
 function asNumber(value: unknown): number {
   const number = Number(value)
@@ -195,6 +201,189 @@ function getSalesGranularity(
   return 'day'
 }
 
+// -----------------------------------------------------------------------------------
+// Chart helpers — custom tooltips, gradients, and a pulsing "active" dot so the
+// revenue / category / delivery charts read as richer, more inspectable surfaces.
+// -----------------------------------------------------------------------------------
+
+function PulseDot(props: {
+  cx?: number
+  cy?: number
+  fill?: string
+}) {
+  const { cx, cy, fill = CHART_COLOR } = props
+
+  if (cx == null || cy == null) {
+    return null
+  }
+
+  return (
+    <g>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={9}
+        fill={fill}
+        fillOpacity={0.18}
+        className="origin-center animate-ping"
+      />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={4.5}
+        fill={fill}
+        stroke="#fff"
+        strokeWidth={1.5}
+      />
+    </g>
+  )
+}
+
+function RevenueTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: Array<{
+    color?: string
+    name?: string
+    value?: number | string
+    dataKey?: string
+  }>
+  label?: string | number
+}) {
+  if (!active || !payload || payload.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="min-w-[180px] rounded-xl border border-ink-900/10 bg-white/95 px-3.5 py-3 shadow-lg backdrop-blur-sm">
+      <p className="mb-2 border-b border-ink-900/5 pb-2 text-[11px] font-semibold text-ink-500">
+        {formatChartLabel(label)}
+      </p>
+
+      <div className="space-y-1.5">
+        {payload.map((entry, index) => (
+          <div
+            key={`${entry.dataKey}-${index}`}
+            className="flex items-center justify-between gap-4 text-xs"
+          >
+            <span className="flex items-center gap-1.5 text-ink-500">
+              <span
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{
+                  backgroundColor: entry.color,
+                }}
+              />
+              {entry.name}
+            </span>
+
+            <span className="font-semibold text-ink-900">
+              {formatNaira(asNumber(entry.value))}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CategoryTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean
+  payload?: Array<{
+    color?: string
+    value?: number | string
+    payload?: AnyRecord
+  }>
+}) {
+  if (!active || !payload || payload.length === 0) {
+    return null
+  }
+
+  const point = payload[0]
+  const data = (point?.payload ?? {}) as AnyRecord
+
+  return (
+    <div className="min-w-[170px] rounded-xl border border-ink-900/10 bg-white/95 px-3.5 py-3 shadow-lg backdrop-blur-sm">
+      <p className="mb-1.5 text-[11px] font-semibold text-ink-900">
+        {asString(data.name, 'Category')}
+      </p>
+
+      <div className="flex items-center justify-between gap-4 text-xs">
+        <span className="text-ink-500">Revenue</span>
+        <span className="font-semibold text-ink-900">
+          {formatNaira(asNumber(point?.value))}
+        </span>
+      </div>
+
+      {typeof data.shareRaw === 'number' && (
+        <div className="mt-1 flex items-center justify-between gap-4 text-xs">
+          <span className="text-ink-500">
+            Revenue Share
+          </span>
+          <span className="font-semibold text-brand-600">
+            {percent(data.shareRaw)}
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DeliveryTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: Array<{
+    color?: string
+    name?: string
+    value?: number | string
+    dataKey?: string
+  }>
+  label?: string | number
+}) {
+  if (!active || !payload || payload.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="min-w-[170px] rounded-xl border border-ink-900/10 bg-white/95 px-3.5 py-3 shadow-lg backdrop-blur-sm">
+      <p className="mb-2 border-b border-ink-900/5 pb-2 text-[11px] font-semibold text-ink-900">
+        {label}
+      </p>
+
+      <div className="space-y-1.5">
+        {payload.map((entry, index) => (
+          <div
+            key={`${entry.dataKey}-${index}`}
+            className="flex items-center justify-between gap-4 text-xs"
+          >
+            <span className="flex items-center gap-1.5 text-ink-500">
+              <span
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{
+                  backgroundColor: entry.color,
+                }}
+              />
+              {entry.name}
+            </span>
+
+            <span className="font-semibold text-ink-900">
+              {asNumber(entry.value).toLocaleString()}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function LoadingCard({
   className,
 }: {
@@ -289,9 +478,9 @@ function SectionHeader({
   action?: React.ReactNode
 }) {
   return (
-    <div className="flex min-w-0 items-start justify-between gap-3 sm:gap-4">
+    <div className="group flex min-w-0 items-start justify-between gap-3 sm:gap-4">
       <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
-        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-600 sm:h-9 sm:w-9">
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-600 transition-transform duration-300 group-hover:scale-110 sm:h-9 sm:w-9">
           <Icon className="h-4 w-4" />
         </div>
 
@@ -323,16 +512,16 @@ function MiniMetric({
   icon: React.ElementType
 }) {
   return (
-    <div className="min-w-0 rounded-lg border border-ink-900/8 bg-ink-900/[0.02] p-3">
+    <div className="group min-w-0 rounded-lg border border-ink-900/8 bg-ink-900/[0.02] p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-500/25 hover:bg-white hover:shadow-md">
       <div className="flex min-w-0 items-center gap-1.5 text-xs text-ink-500 sm:gap-2">
-        <Icon className="h-3.5 w-3.5 shrink-0" />
+        <Icon className="h-3.5 w-3.5 shrink-0 transition-colors duration-200 group-hover:text-brand-600" />
 
         <span className="truncate">
           {label}
         </span>
       </div>
 
-      <p className="mt-1.5 truncate text-base font-semibold text-ink-900 sm:text-lg">
+      <p className="mt-1.5 truncate text-base font-semibold text-ink-900 transition-colors duration-200 sm:text-lg">
         {value}
       </p>
     </div>
@@ -358,10 +547,10 @@ function InsightCard({
   }
 
   return (
-    <div className="min-w-0 rounded-xl border border-ink-900/8 bg-white p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-sm sm:p-4">
+    <div className="group min-w-0 rounded-xl border border-ink-900/8 bg-white p-3.5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/20 hover:shadow-lg sm:p-4">
       <div
         className={cn(
-          'mb-3 flex h-9 w-9 items-center justify-center rounded-lg',
+          'mb-3 flex h-9 w-9 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3',
           toneClasses[tone],
         )}
       >
@@ -387,7 +576,7 @@ function ViewAll({
   return (
     <Link
       to={to}
-      className="inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-brand-600 transition-colors hover:text-brand-700 sm:gap-1"
+      className="group inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-brand-600 transition-colors hover:text-brand-700 sm:gap-1"
     >
       <span className="hidden sm:inline">
         View all
@@ -397,7 +586,7 @@ function ViewAll({
         View
       </span>
 
-      <ChevronRight className="h-3.5 w-3.5" />
+      <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
     </Link>
   )
 }
@@ -1732,6 +1921,19 @@ export function AdminOverviewPage() {
     [salesRows],
   )
 
+  const averageRevenue = React.useMemo(() => {
+    if (revenueChartData.length === 0) {
+      return 0
+    }
+
+    const total = revenueChartData.reduce(
+      (sum, item) => sum + item.revenue,
+      0,
+    )
+
+    return total / revenueChartData.length
+  }, [revenueChartData])
+
   const categoryChartData = React.useMemo(
     () =>
       topCategories.map((category) => ({
@@ -1740,6 +1942,9 @@ export function AdminOverviewPage() {
         ),
         revenue: asNumber(
           category.revenue,
+        ),
+        shareRaw: asNumber(
+          category.revenue_share_pct,
         ),
       })),
     [topCategories],
@@ -1844,7 +2049,7 @@ export function AdminOverviewPage() {
           </div>
 
           <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="grid w-full min-w-0 grid-cols-2 gap-1 rounded-lg border border-ink-900/8 bg-ink-900/[0.02] p-1 sm:grid-cols-5 lg:w-auto">
+            <div className="grid w-full min-w-0 grid-cols-3 gap-1 rounded-lg border border-ink-900/8 bg-ink-900/[0.02] p-1 sm:grid-cols-5 lg:w-auto">
               {(
                 [
                   ['7d', '7 Days'],
@@ -1861,10 +2066,10 @@ export function AdminOverviewPage() {
                     setRangeType(value)
                   }
                   className={cn(
-                    'min-w-0 rounded-md px-2 py-2.5 text-xs font-medium transition-colors sm:px-3 sm:py-2',
+                    'min-w-0 rounded-md px-2 py-2.5 text-xs font-medium transition-all duration-200 sm:px-3 sm:py-2',
                     rangeType === value
-                      ? 'bg-white text-brand-700 shadow-sm'
-                      : 'text-ink-500 hover:text-ink-900',
+                      ? 'scale-[1.02] bg-white text-brand-700 shadow-sm'
+                      : 'text-ink-500 hover:scale-[1.02] hover:bg-white/60 hover:text-ink-900 active:scale-95',
                   )}
                 >
                   <span className="block truncate">
@@ -1878,7 +2083,7 @@ export function AdminOverviewPage() {
               type="button"
               onClick={handleDownloadReport}
               disabled={isLoading}
-              className="h-10 w-full gap-2 sm:h-11 lg:w-auto"
+              className="h-10 w-full gap-2 transition-transform duration-200 hover:scale-[1.02] active:scale-95 sm:h-11 lg:w-auto"
             >
               <Download className="h-4 w-4 shrink-0" />
               <span>Download Report</span>
@@ -1929,66 +2134,78 @@ export function AdminOverviewPage() {
           </Card>
         ) : (
           <>
-            <StatCard
-              label="Revenue"
-              value={formatNaira(revenue)}
-              trendPct={
-                revenueGrowth ?? undefined
-              }
-              helpText={
-                revenueGrowth == null
-                  ? range.label
-                  : 'vs previous period'
-              }
-            />
+            <div className="min-w-0 transition-transform duration-200 hover:-translate-y-1">
+              <StatCard
+                label="Revenue"
+                value={formatNaira(revenue)}
+                trendPct={
+                  revenueGrowth ?? undefined
+                }
+                helpText={
+                  revenueGrowth == null
+                    ? range.label
+                    : 'vs previous period'
+                }
+              />
+            </div>
 
-            <StatCard
-              label="Merchandise Sales"
-              value={formatNaira(
-                merchandiseSales,
-              )}
-              helpText="Successful merchandise sales"
-            />
+            <div className="min-w-0 transition-transform duration-200 hover:-translate-y-1">
+              <StatCard
+                label="Merchandise Sales"
+                value={formatNaira(
+                  merchandiseSales,
+                )}
+                helpText="Successful merchandise sales"
+              />
+            </div>
 
-            <StatCard
-              label="AOV"
-              value={formatNaira(aov)}
-              helpText="Average order value"
-            />
+            <div className="min-w-0 transition-transform duration-200 hover:-translate-y-1">
+              <StatCard
+                label="AOV"
+                value={formatNaira(aov)}
+                helpText="Average order value"
+              />
+            </div>
 
-            <StatCard
-              label="Successful Orders"
-              value={successfulOrders.toLocaleString()}
-              trendPct={
-                orderGrowth ?? undefined
-              }
-              helpText={
-                orderGrowth == null
-                  ? range.label
-                  : 'vs previous period'
-              }
-            />
+            <div className="min-w-0 transition-transform duration-200 hover:-translate-y-1">
+              <StatCard
+                label="Successful Orders"
+                value={successfulOrders.toLocaleString()}
+                trendPct={
+                  orderGrowth ?? undefined
+                }
+                helpText={
+                  orderGrowth == null
+                    ? range.label
+                    : 'vs previous period'
+                }
+              />
+            </div>
 
-            <StatCard
-              label="Units Sold"
-              value={unitsSold.toLocaleString()}
-              trendPct={
-                salesGrowth ?? undefined
-              }
-              helpText={
-                salesGrowth == null
-                  ? 'Units sold'
-                  : 'vs previous period'
-              }
-            />
+            <div className="min-w-0 transition-transform duration-200 hover:-translate-y-1">
+              <StatCard
+                label="Units Sold"
+                value={unitsSold.toLocaleString()}
+                trendPct={
+                  salesGrowth ?? undefined
+                }
+                helpText={
+                  salesGrowth == null
+                    ? 'Units sold'
+                    : 'vs previous period'
+                }
+              />
+            </div>
 
-            <StatCard
-              label="Revenue / Customer"
-              value={formatNaira(
-                revenuePerCustomer,
-              )}
-              helpText={`${purchasingCustomers.toLocaleString()} purchasing customers`}
-            />
+            <div className="min-w-0 transition-transform duration-200 hover:-translate-y-1">
+              <StatCard
+                label="Revenue / Customer"
+                value={formatNaira(
+                  revenuePerCustomer,
+                )}
+                helpText={`${purchasingCustomers.toLocaleString()} purchasing customers`}
+              />
+            </div>
           </>
         )}
       </section>
@@ -2020,12 +2237,12 @@ export function AdminOverviewPage() {
       </section>
 
       <section className="min-w-0">
-        <Card className="min-w-0 overflow-hidden">
+        <Card className="min-w-0 overflow-hidden transition-shadow duration-300 hover:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={CircleDollarSign}
               title="Revenue Performance"
-              description={`${range.label} revenue trend from recorded sales.`}
+              description={`${range.label} revenue trend, split by merchandise and delivery revenue.`}
               action={
                 <ViewAll to="/admin/analytics/revenue" />
               }
@@ -2045,12 +2262,12 @@ export function AdminOverviewPage() {
               />
             ) : (
               <div className="min-w-0 space-y-5">
-                <div className="h-60 min-w-0 sm:h-80">
+                <div className="h-64 min-w-0 sm:h-96">
                   <ResponsiveContainer
                     width="100%"
                     height="100%"
                   >
-                    <LineChart
+                    <ComposedChart
                       data={revenueChartData}
                       margin={{
                         top: 10,
@@ -2059,6 +2276,27 @@ export function AdminOverviewPage() {
                         bottom: 5,
                       }}
                     >
+                      <defs>
+                        <linearGradient
+                          id="revenueGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor={CHART_COLOR}
+                            stopOpacity={0.35}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor={CHART_COLOR}
+                            stopOpacity={0.02}
+                          />
+                        </linearGradient>
+                      </defs>
+
                       <CartesianGrid
                         strokeDasharray="3 3"
                         stroke="#00000010"
@@ -2099,53 +2337,77 @@ export function AdminOverviewPage() {
                       />
 
                       <Tooltip
-                        formatter={(
-                          value,
-                          name,
-                        ) => {
-                          const label =
-                            name === 'revenue'
-                              ? 'Total Revenue'
-                              : name ===
-                                  'merchandiseRevenue'
-                                ? 'Merchandise Revenue'
-                                : name ===
-                                    'deliveryRevenue'
-                                  ? 'Delivery Revenue'
-                                  : 'Value'
-
-                          return [
-                            formatNaira(
-                              asNumber(
-                                value,
-                              ),
-                            ),
-                            label,
-                          ]
+                        content={<RevenueTooltip />}
+                        cursor={{
+                          stroke: CHART_COLOR,
+                          strokeWidth: 1,
+                          strokeDasharray: '4 4',
                         }}
-                        labelFormatter={(
-                          label,
-                        ) =>
-                          formatChartLabel(
-                            label,
-                          )
+                      />
+
+                      <Legend
+                        verticalAlign="top"
+                        align="right"
+                        iconType="circle"
+                        iconSize={8}
+                        wrapperStyle={{
+                          fontSize: 11,
+                          paddingBottom: 8,
+                        }}
+                      />
+
+                      {averageRevenue > 0 && (
+                        <ReferenceLine
+                          y={averageRevenue}
+                          stroke="#94a3b8"
+                          strokeDasharray="4 4"
+                          label={{
+                            value: 'Avg',
+                            position: 'insideTopRight',
+                            fontSize: 10,
+                            fill: '#64748b',
+                          }}
+                        />
+                      )}
+
+                      <Area
+                        type="monotone"
+                        dataKey="revenue"
+                        name="Total Revenue"
+                        stroke={CHART_COLOR}
+                        strokeWidth={2.5}
+                        fill="url(#revenueGradient)"
+                        dot={{ r: 2.5, strokeWidth: 0, fill: CHART_COLOR }}
+                        activeDot={
+                          <PulseDot fill={CHART_COLOR} />
                         }
+                        animationDuration={700}
                       />
 
                       <Line
                         type="monotone"
-                        dataKey="revenue"
-                        name="revenue"
-                        stroke={CHART_COLOR}
-                        strokeWidth={2.5}
-                        dot={{
-                          r: 2.5,
-                        }}
-                        activeDot={{
-                          r: 5,
-                        }}
+                        dataKey="merchandiseRevenue"
+                        name="Merchandise"
+                        stroke={CHART_COLOR_MERCHANDISE}
+                        strokeWidth={1.75}
+                        strokeDasharray="4 3"
+                        dot={false}
+                        activeDot={{ r: 4 }}
+                        animationDuration={700}
                       />
-                    </LineChart>
+
+                      <Line
+                        type="monotone"
+                        dataKey="deliveryRevenue"
+                        name="Delivery"
+                        stroke={CHART_COLOR_DELIVERY}
+                        strokeWidth={1.75}
+                        strokeDasharray="4 3"
+                        dot={false}
+                        activeDot={{ r: 4 }}
+                        animationDuration={700}
+                      />
+                    </ComposedChart>
                   </ResponsiveContainer>
                 </div>
 
@@ -2189,7 +2451,7 @@ export function AdminOverviewPage() {
       </section>
 
       <section className="grid min-w-0 gap-4 xl:grid-cols-2">
-        <Card className="min-w-0">
+        <Card className="min-w-0 transition-shadow duration-300 hover:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={ShoppingBag}
@@ -2220,9 +2482,9 @@ export function AdminOverviewPage() {
                       product.product_id,
                       `product-${index}`,
                     )}
-                    className="flex min-w-0 items-center gap-2.5 rounded-lg border border-transparent p-2 transition-all hover:border-ink-900/8 hover:bg-ink-900/[0.02] sm:gap-3"
+                    className="group flex min-w-0 items-center gap-2.5 rounded-lg border border-transparent p-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-ink-900/8 hover:bg-white hover:shadow-sm sm:gap-3"
                   >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500 transition-colors duration-200 group-hover:bg-brand-500/10 group-hover:text-brand-600">
                       {index + 1}
                     </span>
 
@@ -2270,7 +2532,7 @@ export function AdminOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card className="min-w-0">
+        <Card className="min-w-0 transition-shadow duration-300 hover:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Boxes}
@@ -2302,9 +2564,9 @@ export function AdminOverviewPage() {
                         category.category_id,
                         `category-${index}`,
                       )}
-                      className="flex min-w-0 items-center gap-2.5 rounded-lg border border-ink-900/8 p-2.5 sm:gap-3 sm:p-3"
+                      className="group flex min-w-0 items-center gap-2.5 rounded-lg border border-ink-900/8 p-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-500/25 hover:bg-white hover:shadow-sm sm:gap-3 sm:p-3"
                     >
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500 transition-colors duration-200 group-hover:bg-brand-500/10 group-hover:text-brand-600">
                         {index + 1}
                       </span>
 
@@ -2352,7 +2614,7 @@ export function AdminOverviewPage() {
       </section>
 
       <section className="min-w-0">
-        <Card className="min-w-0 overflow-hidden">
+        <Card className="min-w-0 overflow-hidden transition-shadow duration-300 hover:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Boxes}
@@ -2376,7 +2638,7 @@ export function AdminOverviewPage() {
                 description="Category revenue will appear after successful sales."
               />
             ) : (
-              <div className="h-64 min-w-0 sm:h-80">
+              <div className="h-72 min-w-0 sm:h-96">
                 <ResponsiveContainer
                   width="100%"
                   height="100%"
@@ -2390,6 +2652,27 @@ export function AdminOverviewPage() {
                       bottom: 50,
                     }}
                   >
+                    <defs>
+                      <linearGradient
+                        id="categoryGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor={CHART_COLOR}
+                          stopOpacity={0.95}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor={CHART_COLOR}
+                          stopOpacity={0.55}
+                        />
+                      </linearGradient>
+                    </defs>
+
                     <CartesianGrid
                       strokeDasharray="3 3"
                       stroke="#00000010"
@@ -2418,23 +2701,26 @@ export function AdminOverviewPage() {
                     />
 
                     <Tooltip
-                      formatter={(value) => [
-                        formatNaira(
-                          asNumber(value),
-                        ),
-                        'Revenue',
-                      ]}
+                      content={<CategoryTooltip />}
+                      cursor={{
+                        fill: 'rgba(13,94,111,0.06)',
+                      }}
                     />
 
                     <Bar
                       dataKey="revenue"
-                      fill={CHART_COLOR}
+                      fill="url(#categoryGradient)"
                       radius={[
                         5,
                         5,
                         0,
                         0,
                       ]}
+                      maxBarSize={48}
+                      activeBar={{
+                        fill: '#0a4a58',
+                      }}
+                      animationDuration={700}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -2445,7 +2731,7 @@ export function AdminOverviewPage() {
       </section>
 
       <section className="grid min-w-0 gap-4 xl:grid-cols-2">
-        <Card className="min-w-0">
+        <Card className="min-w-0 transition-shadow duration-300 hover:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Users}
@@ -2509,9 +2795,9 @@ export function AdminOverviewPage() {
                           customer.customer_id,
                           `customer-${index}`,
                         )}
-                        className="flex min-w-0 items-center gap-2.5 rounded-lg border border-ink-900/8 p-2.5 sm:gap-3 sm:p-3"
+                        className="group flex min-w-0 items-center gap-2.5 rounded-lg border border-ink-900/8 p-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-500/25 hover:bg-white hover:shadow-sm sm:gap-3 sm:p-3"
                       >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500 transition-colors duration-200 group-hover:bg-brand-500/10 group-hover:text-brand-600">
                           {index + 1}
                         </span>
 
@@ -2551,7 +2837,7 @@ export function AdminOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card className="min-w-0">
+        <Card className="min-w-0 transition-shadow duration-300 hover:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Search}
@@ -2598,11 +2884,11 @@ export function AdminOverviewPage() {
                           item.normalized_query,
                           'search',
                         )}-${index}`}
-                        className="min-w-0 rounded-lg border border-ink-900/8 p-2.5 sm:p-3"
+                        className="group min-w-0 rounded-lg border border-ink-900/8 p-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-500/25 hover:bg-white hover:shadow-sm sm:p-3"
                       >
                         <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
                           <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500 transition-colors duration-200 group-hover:bg-amber-500/10 group-hover:text-amber-600">
                               {index + 1}
                             </span>
 
@@ -2661,7 +2947,7 @@ export function AdminOverviewPage() {
       </section>
 
       <section className="grid min-w-0 gap-4 xl:grid-cols-2">
-        <Card className="min-w-0">
+        <Card className="min-w-0 transition-shadow duration-300 hover:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Truck}
@@ -2686,7 +2972,7 @@ export function AdminOverviewPage() {
               />
             ) : (
               <div className="min-w-0 space-y-4">
-                <div className="h-52 min-w-0 sm:h-56">
+                <div className="h-56 min-w-0 sm:h-64">
                   <ResponsiveContainer
                     width="100%"
                     height="100%"
@@ -2699,6 +2985,7 @@ export function AdminOverviewPage() {
                         left: -15,
                         bottom: 5,
                       }}
+                      barGap={4}
                     >
                       <CartesianGrid
                         strokeDasharray="3 3"
@@ -2722,11 +3009,27 @@ export function AdminOverviewPage() {
                         width={40}
                       />
 
-                      <Tooltip />
+                      <Tooltip
+                        content={<DeliveryTooltip />}
+                        cursor={{
+                          fill: 'rgba(13,94,111,0.06)',
+                        }}
+                      />
+
+                      <Legend
+                        verticalAlign="top"
+                        align="right"
+                        iconType="circle"
+                        iconSize={8}
+                        wrapperStyle={{
+                          fontSize: 11,
+                          paddingBottom: 8,
+                        }}
+                      />
 
                       <Bar
                         dataKey="orders"
-                        name="Delivery orders"
+                        name="Delivery Orders"
                         fill={CHART_COLOR}
                         radius={[
                           5,
@@ -2734,6 +3037,28 @@ export function AdminOverviewPage() {
                           0,
                           0,
                         ]}
+                        maxBarSize={28}
+                        activeBar={{
+                          fill: '#0a4a58',
+                        }}
+                        animationDuration={700}
+                      />
+
+                      <Bar
+                        dataKey="delivered"
+                        name="Delivered"
+                        fill={CHART_COLOR_DELIVERED}
+                        radius={[
+                          5,
+                          5,
+                          0,
+                          0,
+                        ]}
+                        maxBarSize={28}
+                        activeBar={{
+                          fill: '#0a7a4f',
+                        }}
+                        animationDuration={700}
                       />
                     </BarChart>
                   </ResponsiveContainer>
@@ -2749,7 +3074,7 @@ export function AdminOverviewPage() {
                             item.zone_id,
                             `zone-${index}`,
                           )}
-                          className="min-w-0 rounded-lg border border-ink-900/8 p-3"
+                          className="min-w-0 rounded-lg border border-ink-900/8 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-500/25 hover:bg-white hover:shadow-sm"
                         >
                           <div className="flex min-w-0 items-center justify-between gap-3">
                             <p className="min-w-0 truncate text-xs font-medium text-ink-900 sm:text-sm">
@@ -2790,7 +3115,7 @@ export function AdminOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card className="min-w-0">
+        <Card className="min-w-0 transition-shadow duration-300 hover:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={MapPin}
@@ -2824,9 +3149,9 @@ export function AdminOverviewPage() {
                           item.lga,
                           'LGA',
                         )}-${index}`}
-                        className="flex min-w-0 items-center gap-2.5 rounded-lg border border-ink-900/8 p-2.5 sm:gap-3 sm:p-3"
+                        className="group flex min-w-0 items-center gap-2.5 rounded-lg border border-ink-900/8 p-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-500/25 hover:bg-white hover:shadow-sm sm:gap-3 sm:p-3"
                       >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink-900/5 text-xs font-semibold text-ink-500 transition-colors duration-200 group-hover:bg-brand-500/10 group-hover:text-brand-600">
                           {index + 1}
                         </span>
 
@@ -2867,7 +3192,7 @@ export function AdminOverviewPage() {
       </section>
 
       <section className="min-w-0">
-        <Card className="min-w-0 overflow-hidden">
+        <Card className="min-w-0 overflow-hidden transition-shadow duration-300 hover:shadow-lg">
           <CardHeader className="p-4 sm:p-6">
             <SectionHeader
               icon={Activity}
@@ -3034,7 +3359,7 @@ export function AdminOverviewPage() {
         />
       </section>
 
-      <section className="min-w-0 rounded-2xl border border-brand-500/15 bg-brand-500/[0.04] p-4 sm:p-6">
+      <section className="min-w-0 rounded-2xl border border-brand-500/15 bg-brand-500/[0.04] p-4 transition-shadow duration-300 hover:shadow-md sm:p-6">
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-ink-900">
@@ -3053,7 +3378,7 @@ export function AdminOverviewPage() {
             type="button"
             onClick={handleDownloadReport}
             disabled={isLoading}
-            className="h-10 w-full shrink-0 gap-2 sm:h-11 sm:w-auto"
+            className="h-10 w-full shrink-0 gap-2 transition-transform duration-200 hover:scale-[1.02] active:scale-95 sm:h-11 sm:w-auto"
           >
             <Download className="h-4 w-4 shrink-0" />
             <span className="sm:hidden">

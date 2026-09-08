@@ -719,6 +719,13 @@ export async function getProductBySlug(
     .maybeSingle()
 
   if (productError) {
+    console.error('getProductBySlug Supabase error:', {
+      message: productError.message,
+      details: productError.details,
+      hint: productError.hint,
+      code: productError.code,
+    })
+
     throw productError
   }
 
@@ -775,7 +782,7 @@ export async function getProductBySlug(
       maximum_quantity,
       quantity_step,
       is_default,
-      is_active
+      is_active,
       created_at,
       updated_at
     `)
@@ -990,124 +997,128 @@ export async function getProductBySlug(
   // ---------------------------------------------------------------------------------
   // 12. Build ProductDetailData.
   // ---------------------------------------------------------------------------------
-return {
-  id: product.id,
-  name: product.name,
-  slug: product.slug,
 
-  base_price: Number(currentPrice),
+  return {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
 
-  compare_at_price:
-    compareAtPrice != null
-      ? Number(compareAtPrice)
-      : null,
+    base_price: Number(currentPrice),
 
-  is_new: Boolean(product.is_new),
+    compare_at_price:
+      compareAtPrice != null
+        ? Number(compareAtPrice)
+        : null,
 
-  is_best_seller: Boolean(
-    product.is_best_seller,
-  ),
+    is_new: Boolean(product.is_new),
 
-  is_featured: Boolean(
-    product.is_featured,
-  ),
+    is_best_seller: Boolean(
+      product.is_best_seller,
+    ),
 
-  primary_image_url:
-    primary?.image_url ?? null,
+    is_featured: Boolean(
+      product.is_featured,
+    ),
 
-  primary_image_alt:
-    primary?.alt_text ?? null,
+    primary_image_url:
+      primary?.image_url ?? null,
 
-  average_rating: Number(
-    ratingRow?.average_rating ?? 0,
-  ),
+    primary_image_alt:
+      primary?.alt_text ?? null,
 
-  review_count: Number(
-    ratingRow?.review_count ?? 0,
-  ),
+    average_rating: Number(
+      ratingRow?.average_rating ?? 0,
+    ),
 
-  stock_label:
-    exactStockLabel as ProductDetailData['stock_label'],
+    review_count: Number(
+      ratingRow?.review_count ?? 0,
+    ),
 
-  low_stock_count_if_applicable:
-    exactAvailableQuantity,
+    stock_label:
+      exactStockLabel as ProductDetailData['stock_label'],
 
-  short_description:
-    product.short_description ?? null,
+    low_stock_count_if_applicable:
+      exactAvailableQuantity,
 
-  description:
-    product.description ?? null,
+    short_description:
+      product.short_description ?? null,
 
-  specifications:
-    typeof product.specifications === 'object' &&
-    product.specifications !== null &&
-    !Array.isArray(product.specifications)
-      ? (product.specifications as Record<string, unknown>)
-      : {},
+    description:
+      product.description ?? null,
 
-  features:
-    Array.isArray(product.features)
-      ? product.features
-      : [],
+    specifications:
+      typeof product.specifications === 'object' &&
+      product.specifications !== null &&
+      !Array.isArray(product.specifications)
+        ? (product.specifications as Record<
+            string,
+            unknown
+          >)
+        : {},
 
-  materials:
-    product.materials ?? null,
+    features:
+      Array.isArray(product.features)
+        ? product.features
+        : [],
 
-  dimensions:
-    product.dimensions ?? null,
+    materials:
+      product.materials ?? null,
 
-  weight_kg:
-    product.weight_kg != null
-      ? Number(product.weight_kg)
-      : null,
+    dimensions:
+      product.dimensions ?? null,
 
-  care_instructions:
-    product.care_instructions ?? null,
+    weight_kg:
+      product.weight_kg != null
+        ? Number(product.weight_kg)
+        : null,
 
-  warranty_info:
-    product.warranty_info ?? null,
+    care_instructions:
+      product.care_instructions ?? null,
 
-  brand,
+    warranty_info:
+      product.warranty_info ?? null,
 
-  images: [...images].sort(
-    (a, b) =>
-      (a.sort_order ?? 0) -
-      (b.sort_order ?? 0),
-  ),
+    brand,
 
-  purchase_options: purchaseOptions.map(
-    (option) => ({
-      ...(option as any),
+    images: [...images].sort(
+      (a, b) =>
+        (a.sort_order ?? 0) -
+        (b.sort_order ?? 0),
+    ),
 
-      price: Number(
-        (option as any).price,
-      ),
+    purchase_options: purchaseOptions.map(
+      (option) => ({
+        ...(option as any),
 
-      compare_at_price:
-        (option as any).compare_at_price != null
-          ? Number(
-              (option as any).compare_at_price,
-            )
-          : null,
+        price: Number(
+          (option as any).price,
+        ),
 
-      units_per_purchase: Number(
-        (option as any).units_per_purchase ?? 1,
-      ),
+        compare_at_price:
+          (option as any).compare_at_price != null
+            ? Number(
+                (option as any).compare_at_price,
+              )
+            : null,
 
-      minimum_quantity: Number(
-        (option as any).minimum_quantity ?? 1,
-      ),
+        units_per_purchase: Number(
+          (option as any).units_per_purchase ?? 1,
+        ),
 
-      maximum_quantity: Number(
-        (option as any).maximum_quantity ?? 0,
-      ),
+        minimum_quantity: Number(
+          (option as any).minimum_quantity ?? 1,
+        ),
 
-      quantity_step: Number(
-        (option as any).quantity_step ?? 1,
-      ),
-    }),
-  ),
+        maximum_quantity: Number(
+          (option as any).maximum_quantity ?? 0,
+        ),
 
-  categories,
-}
+        quantity_step: Number(
+          (option as any).quantity_step ?? 1,
+        ),
+      }),
+    ),
+
+    categories,
+  }
 }

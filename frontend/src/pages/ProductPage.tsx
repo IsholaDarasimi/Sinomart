@@ -1,6 +1,7 @@
 import * as React from 'react'
 
 import { useNavigate, useParams } from 'react-router-dom'
+
 import { motion } from 'framer-motion'
 import {
   Check,
@@ -11,6 +12,7 @@ import {
   PackageCheck,
   ShieldCheck,
   ShoppingBag,
+  Star,
   Store,
   Truck,
 } from 'lucide-react'
@@ -45,6 +47,15 @@ import {
   formatNaira,
   discountPercent,
 } from '@/lib/utils'
+
+// ---------------------------------------------------------------------------------
+// This page follows the general reading order of a Jumia-style PDP:
+//   breadcrumb -> gallery + share -> brand/title -> rating -> price block ->
+//   stock/availability -> quantity + purchase actions -> delivery & returns ->
+//   seller card -> tabbed details (description / specs / reviews / delivery) ->
+//   related products -> sticky mobile purchase bar.
+// All data fetching, cart, wishlist, and share logic is unchanged from before.
+// ---------------------------------------------------------------------------------
 
 export function ProductPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -174,11 +185,11 @@ export function ProductPage() {
     product.stock_label === 'out_of_stock'
 
   const purchaseMaximum =
-  selectedOption &&
-  selectedOption.maximum_quantity != null &&
-  selectedOption.maximum_quantity > 0
-    ? selectedOption.maximum_quantity
-    : null
+    selectedOption &&
+    selectedOption.maximum_quantity != null &&
+    selectedOption.maximum_quantity > 0
+      ? selectedOption.maximum_quantity
+      : null
 
   const availableUnits =
     !isOutOfStock &&
@@ -224,9 +235,8 @@ export function ProductPage() {
     if (!selectedOption || isOutOfStock) return
 
     if (!product) {
-  return
-}
-
+      return
+    }
 
     try {
       await addItem.mutateAsync({
@@ -258,14 +268,14 @@ export function ProductPage() {
   }
 
   async function handleShare() {
-  if (!product) {
-    return
-  }
+    if (!product) {
+      return
+    }
 
-  const shareData = {
-    title: product.name,
-    url: window.location.href,
-  }
+    const shareData = {
+      title: product.name,
+      url: window.location.href,
+    }
 
     try {
       if (navigator.share) {
@@ -345,15 +355,73 @@ export function ProductPage() {
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-5 sm:py-7 lg:px-8">
-        {/* Main product area */}
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(380px,0.92fr)] lg:items-start lg:gap-8">
-          {/* Gallery */}
+        {/* Main product area: gallery left, buy-box right (Jumia PDP layout) */}
+        <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(380px,1.05fr)] lg:items-start lg:gap-8">
+          {/* Gallery + share */}
           <div className="min-w-0">
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <ProductGallery
                 images={product.images}
                 productName={product.name}
               />
+            </div>
+
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {product.brand && (
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-brand-600 hover:underline"
+                  >
+                    {product.brand.name}
+                  </button>
+                )}
+
+                <span className="rounded-full bg-brand-50 px-2.5 py-1 text-[10px] font-semibold text-brand-600">
+                  Official Store
+                </span>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2">
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() =>
+                    setIsSaved((current) => !current)
+                  }
+                  aria-label={
+                    isSaved
+                      ? 'Remove from wishlist'
+                      : 'Add to wishlist'
+                  }
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border transition-all ${
+                    isSaved
+                      ? 'border-red-100 bg-red-50 text-red-500'
+                      : 'border-slate-200 bg-white text-ink-500 hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600'
+                  }`}
+                >
+                  <Heart
+                    className="h-4 w-4"
+                    fill={
+                      isSaved ? 'currentColor' : 'none'
+                    }
+                  />
+                </motion.button>
+
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleShare}
+                  aria-label="Share product"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-ink-500 transition-all hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600"
+                >
+                  {isCopied ? (
+                    <Check className="h-4 w-4 text-brand-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </motion.button>
+              </div>
             </div>
 
             {/* Trust strip */}
@@ -405,75 +473,16 @@ export function ProductPage() {
             </div>
           </div>
 
-          {/* Product information */}
+          {/* Buy box */}
           <div className="min-w-0">
             <div className="lg:sticky lg:top-24">
-              {/* Brand + actions */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  {product.brand && (
-                    <button
-                      type="button"
-                      className="text-xs font-semibold text-brand-600 hover:underline"
-                    >
-                      {product.brand.name}
-                    </button>
-                  )}
-
-                  <div className="mt-1 text-xs text-ink-400">
-                    Sold by Sinomart
-                  </div>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2">
-                  <motion.button
-                    type="button"
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() =>
-                      setIsSaved((current) => !current)
-                    }
-                    aria-label={
-                      isSaved
-                        ? 'Remove from wishlist'
-                        : 'Add to wishlist'
-                    }
-                    className={`flex h-9 w-9 items-center justify-center rounded-full border transition-all ${
-                      isSaved
-                        ? 'border-red-100 bg-red-50 text-red-500'
-                        : 'border-slate-200 bg-white text-ink-500 hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600'
-                    }`}
-                  >
-                    <Heart
-                      className="h-4 w-4"
-                      fill={
-                        isSaved ? 'currentColor' : 'none'
-                      }
-                    />
-                  </motion.button>
-
-                  <motion.button
-                    type="button"
-                    whileTap={{ scale: 0.9 }}
-                    onClick={handleShare}
-                    aria-label="Share product"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-ink-500 transition-all hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600"
-                  >
-                    {isCopied ? (
-                      <Check className="h-4 w-4 text-brand-600" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </motion.button>
-                </div>
-              </div>
-
               {/* Title */}
-              <h1 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-ink-900 sm:text-[30px]">
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-ink-900 sm:text-2xl">
                 {product.name}
               </h1>
 
-              {/* Rating */}
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              {/* Rating row */}
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
                 <div className="flex items-center gap-1.5">
                   <RatingStars
                     rating={product.average_rating}
@@ -493,15 +502,15 @@ export function ProductPage() {
                 >
                   {product.review_count}{' '}
                   {product.review_count === 1
-                    ? 'review'
-                    : 'reviews'}
+                    ? 'verified rating'
+                    : 'verified ratings'}
                 </button>
               </div>
 
-              {/* Price block */}
-              <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              {/* Price block — mirrors Jumia's price + strike-through + % off */}
+              <div className="mt-4 border-b border-slate-200 pb-4">
                 <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-                  <span className="text-3xl font-bold tracking-tight text-brand-700">
+                  <span className="text-[28px] font-bold tracking-tight text-brand-700 sm:text-3xl">
                     {formatNaira(currentPrice)}
                   </span>
 
@@ -526,62 +535,34 @@ export function ProductPage() {
                     )}
                   </p>
                 )}
+
+                {/* Availability, right under price like Jumia's "In stock" line */}
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <StockBadge
+                    stockLabel={product.stock_label}
+                    lowStockCount={
+                      product.low_stock_count_if_applicable
+                    }
+                  />
+
+                  {!isOutOfStock && (
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-accent-green-600">
+                      <span className="h-1.5 w-1.5 rounded-full bg-accent-green-500" />
+                      Available for purchase
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Availability */}
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <StockBadge
-                  stockLabel={product.stock_label}
-                  lowStockCount={
-                    product.low_stock_count_if_applicable
-                  }
-                />
-
-                {!isOutOfStock && (
-                  <span className="flex items-center gap-1.5 text-xs font-medium text-accent-green-600">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent-green-500" />
-                    Available for purchase
-                  </span>
-                )}
-              </div>
-
-              {/* Short description */}
+              {/* Short description, kept short like Jumia's one-line summary under price */}
               {product.short_description && (
-                <div className="mt-5 border-b border-slate-200 pb-5">
-                  <p className="text-sm leading-6 text-ink-600">
-                    {product.short_description}
-                  </p>
-                </div>
+                <p className="mt-4 text-sm leading-6 text-ink-600">
+                  {product.short_description}
+                </p>
               )}
 
-              {/* Key features */}
-              {product.features.length > 0 && (
-                <div className="mt-5">
-                  <h2 className="text-sm font-semibold text-ink-900">
-                    Key Highlights
-                  </h2>
-
-                  <ul className="mt-3 space-y-2">
-                    {product.features
-                      .slice(0, 6)
-                      .map((feature, index) => (
-                        <li
-                          key={`${feature}-${index}`}
-                          className="flex items-start gap-2.5 text-sm text-ink-700"
-                        >
-                          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600">
-                            <Check className="h-3 w-3" />
-                          </span>
-
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Purchase box */}
-              <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              {/* Quantity + purchase options + actions, grouped as one buy box */}
+              <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 {product.purchase_options.length > 0 && (
                   <>
                     <PurchaseOptionSelector
@@ -663,15 +644,15 @@ export function ProductPage() {
                 </div>
               </div>
 
-              {/* Delivery information */}
-              <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              {/* Delivery options — pickup vs door delivery side by side, like Jumia's delivery tabs */}
+              <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-100 px-4 py-3">
                   <h2 className="text-sm font-semibold text-ink-900">
-                    Delivery & Pickup
+                    Delivery & Returns
                   </h2>
                 </div>
 
-                <div className="divide-y divide-slate-100">
+                <div className="grid divide-y divide-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
                   <div className="flex gap-3 px-4 py-4">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50">
                       <Truck className="h-4 w-4 text-brand-600" />
@@ -684,7 +665,8 @@ export function ProductPage() {
 
                       <p className="mt-1 text-xs leading-5 text-ink-500">
                         Delivery fee and estimated delivery
-                        time are calculated at checkout.
+                        time are calculated at checkout based
+                        on your address.
                       </p>
                     </div>
                   </div>
@@ -705,23 +687,14 @@ export function ProductPage() {
                       </p>
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex gap-3 px-4 py-4">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50">
-                      <ShieldCheck className="h-4 w-4 text-brand-600" />
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-semibold text-ink-900">
-                        Secure Checkout
-                      </p>
-
-                      <p className="mt-1 text-xs leading-5 text-ink-500">
-                        Your payment and order details are
-                        protected.
-                      </p>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2.5 border-t border-slate-100 px-4 py-3">
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-brand-600" />
+                  <p className="text-xs leading-5 text-ink-500">
+                    Return eligibility and conditions are
+                    provided with your order information.
+                  </p>
                 </div>
               </div>
 
@@ -757,7 +730,7 @@ export function ProductPage() {
           </div>
         </section>
 
-        {/* Product information */}
+        {/* Product information tabs */}
         <section className="mt-8 sm:mt-12">
           <Tabs defaultValue="description">
             <div className="overflow-x-auto rounded-t-xl border border-b-0 border-slate-200 bg-white">
@@ -766,7 +739,7 @@ export function ProductPage() {
                   value="description"
                   className="rounded-none border-b-2 border-transparent px-4 py-4 text-xs font-semibold data-[state=active]:border-brand-500 data-[state=active]:text-brand-600 sm:px-6 sm:text-sm"
                 >
-                  Description
+                  Product Details
                 </TabsTrigger>
 
                 <TabsTrigger
@@ -781,7 +754,7 @@ export function ProductPage() {
                   id="product-reviews"
                   className="rounded-none border-b-2 border-transparent px-4 py-4 text-xs font-semibold data-[state=active]:border-brand-500 data-[state=active]:text-brand-600 sm:px-6 sm:text-sm"
                 >
-                  Reviews
+                  Verified Customer Feedback
 
                   {product.review_count > 0 && (
                     <span className="ml-1.5 rounded-full bg-brand-50 px-1.5 py-0.5 text-[10px] text-brand-600">
@@ -799,7 +772,7 @@ export function ProductPage() {
               </TabsList>
             </div>
 
-            {/* Description */}
+            {/* Product details / description */}
             <TabsContent
               value="description"
               className="mt-0"
@@ -807,7 +780,7 @@ export function ProductPage() {
               <div className="rounded-b-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
                 <div className="max-w-5xl">
                   <h2 className="text-lg font-semibold text-ink-900">
-                    Product Description
+                    Product Details
                   </h2>
 
                   {product.description ? (
@@ -982,21 +955,56 @@ export function ProductPage() {
               </div>
             </TabsContent>
 
-            {/* Reviews */}
+            {/* Verified customer feedback */}
             <TabsContent
               value="reviews"
               className="mt-0"
             >
               <div className="rounded-b-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-ink-900">
-                    Customer Reviews
-                  </h2>
+                <div className="mb-6 flex flex-col gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-ink-900">
+                      Verified Customer Feedback
+                    </h2>
 
-                  <p className="mt-1 text-xs text-ink-500">
-                    See what customers have to say about this
-                    product.
-                  </p>
+                    <p className="mt-1 text-xs text-ink-500">
+                      See what customers have to say about this
+                      product.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3">
+                    <div className="text-2xl font-bold text-ink-900">
+                      {product.average_rating.toFixed(1)}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-0.5">
+                        {Array.from({ length: 5 }).map(
+                          (_, index) => (
+                            <Star
+                              key={index}
+                              className={`h-3.5 w-3.5 ${
+                                index <
+                                Math.round(
+                                  product.average_rating,
+                                )
+                                  ? 'fill-amber-400 text-amber-400'
+                                  : 'fill-slate-200 text-slate-200'
+                              }`}
+                            />
+                          ),
+                        )}
+                      </div>
+
+                      <p className="mt-0.5 text-[11px] text-ink-500">
+                        {product.review_count}{' '}
+                        {product.review_count === 1
+                          ? 'verified rating'
+                          : 'verified ratings'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <ReviewsSection
@@ -1018,7 +1026,7 @@ export function ProductPage() {
               </div>
             </TabsContent>
 
-            {/* Shipping */}
+            {/* Delivery & returns */}
             <TabsContent
               value="shipping"
               className="mt-0"
@@ -1110,10 +1118,19 @@ export function ProductPage() {
         )}
       </main>
 
-      {/* Mobile purchase bar */}
+      {/* Mobile sticky purchase bar */}
       {!isOutOfStock && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-8px_25px_rgba(0,0,0,0.08)] backdrop-blur sm:hidden">
-          <div className="mx-auto flex max-w-7xl gap-2">
+          <div className="mx-auto flex max-w-7xl items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[11px] text-ink-500">
+                {product.name}
+              </p>
+              <p className="text-sm font-bold text-brand-700">
+                {formatNaira(currentPrice)}
+              </p>
+            </div>
+
             <Button
               variant="secondary"
               disabled={
@@ -1123,10 +1140,10 @@ export function ProductPage() {
               onClick={() =>
                 handleAddToCart(false)
               }
-              className="h-11 flex-1 rounded-lg text-xs font-semibold"
+              className="h-11 rounded-lg px-3 text-xs font-semibold"
             >
               <ShoppingBag className="mr-1.5 h-4 w-4" />
-              Add to Cart
+              Add
             </Button>
 
             <Button
@@ -1137,7 +1154,7 @@ export function ProductPage() {
               onClick={() =>
                 handleAddToCart(true)
               }
-              className="h-11 flex-1 rounded-lg bg-brand-500 text-xs font-semibold text-white hover:bg-brand-600"
+              className="h-11 rounded-lg bg-brand-500 px-4 text-xs font-semibold text-white hover:bg-brand-600"
             >
               Buy Now
             </Button>
