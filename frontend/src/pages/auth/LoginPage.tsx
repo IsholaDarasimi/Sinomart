@@ -42,13 +42,12 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export function LoginPage() {
-  const { signIn, signInWithGoogle } = useAuth()
+  const { signIn } = useAuth()
   const { toast } = useToast()
   const navigate = useNavigate()
   const location = useLocation()
 
   const [submitting, setSubmitting] = React.useState(false)
-  const [googleLoading, setGoogleLoading] = React.useState(false)
   const [showPassword, setShowPassword] = React.useState(false)
 
   const {
@@ -64,7 +63,7 @@ export function LoginPage() {
   })
 
   async function onSubmit(values: FormValues) {
-    if (submitting || googleLoading) {
+    if (submitting) {
       return
     }
 
@@ -95,30 +94,7 @@ export function LoginPage() {
     }
   }
 
-  async function handleGoogleSignIn() {
-    if (submitting || googleLoading) {
-      return
-    }
-
-    setGoogleLoading(true)
-
-    try {
-      await signInWithGoogle()
-    } catch (err) {
-      toast({
-        title: 'Google sign in failed',
-        description:
-          err instanceof Error
-            ? err.message
-            : 'Unable to continue with Google. Please try again.',
-        variant: 'error',
-      })
-
-      setGoogleLoading(false)
-    }
-  }
-
-  const isLoading = submitting || googleLoading
+  const isLoading = submitting
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -192,57 +168,6 @@ export function LoginPage() {
                 Access your orders, saved products, and account details.
               </p>
             </div>
-
-            {/* Google */}
-            {/* <Button
-              type="button"
-              variant="outline"
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-              className="h-11 w-full rounded-xl border-slate-200 bg-white font-semibold text-slate-700 shadow-none hover:bg-slate-50"
-            >
-              {googleLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <svg
-                  className="mr-2 h-5 w-5"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill="#4285F4"
-                    d="M21.35 12.23c0-.7-.06-1.38-.18-2.03H12v3.84h5.22a4.46 4.46 0 0 1-1.94 2.93v2.43h3.14c1.84-1.69 2.93-4.18 2.93-7.17Z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 21.8c2.63 0 4.84-.87 6.45-2.4l-3.14-2.43c-.87.58-1.98.93-3.31.93-2.54 0-4.7-1.72-5.47-4.03H3.29v2.5A9.74 9.74 0 0 0 12 21.8Z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M6.53 13.87a5.86 5.86 0 0 1 0-3.74v-2.5H3.29a9.76 9.76 0 0 0 0 8.74l3.24-2.5Z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 6.1c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.84 3.14 14.63 2.2 12 2.2a9.74 9.74 0 0 0-8.71 5.43l3.24 2.5C7.3 7.82 9.46 6.1 12 6.1Z"
-                  />
-                </svg>
-              )}
-
-              {googleLoading
-                ? 'Connecting...'
-                : 'Continue with Google'}
-            </Button> */}
-
-            {/* Divider */}
-            {/* <div className="my-6 flex items-center gap-4">
-              <div className="h-px flex-1 bg-slate-200" />
-
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Or
-              </span>
-
-              <div className="h-px flex-1 bg-slate-200" />
-            </div> */}
 
             {/* Form */}
             <form
