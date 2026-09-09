@@ -227,7 +227,7 @@ export function SignupPage() {
             </div>
 
             {/* Google */}
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               onClick={handleGoogleSignUp}
@@ -264,10 +264,10 @@ export function SignupPage() {
               {googleLoading
                 ? 'Connecting...'
                 : 'Continue with Google'}
-            </Button>
+            </Button> */}
 
             {/* Divider */}
-            <div className="my-6 flex items-center gap-4">
+            {/* <div className="my-6 flex items-center gap-4">
               <div className="h-px flex-1 bg-slate-200" />
 
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -275,7 +275,7 @@ export function SignupPage() {
               </span>
 
               <div className="h-px flex-1 bg-slate-200" />
-            </div>
+            </div> */}
 
             {/* Form */}
             <form
