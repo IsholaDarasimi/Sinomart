@@ -322,15 +322,12 @@ export async function reorderProductImages(
    * Update every image's sort order based on its position
    * in the supplied array.
    */
-  await Promise.all(
-    imageIds.map((imageId, index) =>
-      supabase
-        .from('product_images')
-        .update({ sort_order: index })
-        .eq('id', imageId)
-        .eq('product_id', productId),
-    ),
-  )
+  for (const [index, imageId] of imageIds.entries()) {
+    const { error } = await supabase.from('product_images')
+      .update({ sort_order: index })
+      .eq('id', imageId).eq('product_id', productId)
+    if (error) throw error
+  }
 }
 
 export async function deleteProductImage(
