@@ -159,7 +159,20 @@ export function AdminProductEditPage() {
   const [images, setImages] = React.useState<File[]>([])
 
   const [uploadedImages, setUploadedImages] =
-    React.useState<string[]>([])
+    React.useState<productsApi.AdminProductImage[]>([])
+
+  const [removedImageIds, setRemovedImageIds] = React.useState<string[]>([])
+  const [imageOrderChanged, setImageOrderChanged] = React.useState(false)
+  function moveImage(index: number, direction: number) {
+    setUploadedImages(current => {
+      const next = [...current]
+      const target = index + direction
+      if (target < 0 || target >= next.length) return current
+      ;[next[index], next[target]] = [next[target], next[index]]
+      return next
+    })
+    setImageOrderChanged(true)
+  }
 
   const [stock, setStock] = React.useState(0)
 
@@ -256,7 +269,7 @@ export function AdminProductEditPage() {
   ] = await Promise.all([
     supabase
       .from('product_images')
-      .select('image_url, sort_order')
+      .select('*')
       .eq('product_id', productId)
       .order('sort_order', {
         ascending: true,
@@ -286,15 +299,10 @@ export function AdminProductEditPage() {
         )
       }
 
+      setRemovedImageIds([])
+      setImageOrderChanged(false)
       if (imageData?.length) {
-        setUploadedImages(
-          imageData
-            .map((image) => image.image_url)
-            .filter(
-              (url): url is string =>
-                Boolean(url),
-            ),
-        )
+        setUploadedImages(imageData as productsApi.AdminProductImage[])
       } else {
         setUploadedImages([])
       }
@@ -521,22 +529,7 @@ export function AdminProductEditPage() {
           productIdToUse,
         )
 
-      setUploadedImages(
-        refreshedImages
-          .sort(
-            (a, b) =>
-              a.sort_order -
-              b.sort_order,
-          )
-          .map(
-            (image) =>
-              image.image_url,
-          )
-          .filter(
-            (url): url is string =>
-              Boolean(url),
-          ),
-      )
+      setUploadedImages(refreshedImages)
     } finally {
       setIsUploadingImages(false)
     }
@@ -798,6 +791,20 @@ export function AdminProductEditPage() {
 
     if (categoryInsertError) {
       throw categoryInsertError
+    }
+
+    /* Apply staged gallery changes only after Save. */
+    if (removedImageIds.length || imageOrderChanged) {
+      for (const imageId of removedImageIds) {
+        await productsApi.deleteProductImage(productId, imageId)
+      }
+      const remainingIds = uploadedImages.map(image => image.id)
+      await productsApi.reorderProductImages(productId, remainingIds)
+      if (remainingIds.length) {
+        await productsApi.setPrimaryProductImage(productId, remainingIds[0])
+      }
+      setRemovedImageIds([])
+      setImageOrderChanged(false)
     }
 
     /*
@@ -1572,18 +1579,18 @@ export function AdminProductEditPage() {
           Existing Images
         </p>
         <p className="text-xs text-ink-500">
-          Images already saved to this product.
+          Use arrows to arrange images, or remove them. Changes apply when you save.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {uploadedImages.map((url, index) => (
+        {uploadedImages.map((image, index) => (
           <div
-            key={`${url}-${index}`}
+            key={image.id}
             className="relative overflow-hidden rounded-xl border border-slate-200 bg-white"
           >
             <img
-              src={url}
+              src={image.image_url ?? ''}
               alt={`${existingProduct?.name ?? 'Product'} image ${index + 1}`}
               className="h-32 w-full object-cover"
             />
@@ -1594,6 +1601,11 @@ export function AdminProductEditPage() {
               </div>
             )}
 
+            <div className="flex items-center justify-between gap-1 px-2 pt-2">
+              <button type="button" disabled={index === 0} onClick={() => moveImage(index, -1)} aria-label="Move image earlier" className="rounded border px-2 py-1 disabled:opacity-30">←</button>
+              <button type="button" disabled={index === uploadedImages.length - 1} onClick={() => moveImage(index, 1)} aria-label="Move image later" className="rounded border px-2 py-1 disabled:opacity-30">→</button>
+              <button type="button" onClick={() => { if (window.confirm('Remove this image when you save?')) { setRemovedImageIds(ids => [...ids, image.id]); setUploadedImages(current => current.filter(row => row.id !== image.id)); setImageOrderChanged(true) } }} aria-label="Delete image" className="rounded border border-red-200 px-2 py-1 text-red-600">Delete</button>
+            </div>
             <div className="border-t border-slate-100 px-2.5 py-2">
               <p className="text-xs font-medium text-ink-700">
                 Image {index + 1}
@@ -1641,7 +1653,7 @@ export function AdminProductEditPage() {
           <p className="text-xs text-ink-500">
             {isNew
               ? 'The product will be created as a draft.'
-              : 'Changes are saved immediately to the product.'}
+              : 'Changes are applied when you save the product.'}
           </p>
 
           <div className="flex gap-2">
