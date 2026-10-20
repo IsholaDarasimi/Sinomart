@@ -48,7 +48,7 @@ export function CartPage() {
               <div className="aspect-square bg-slate-50">{product.primary_image_url && <img src={product.primary_image_url} alt={product.name} loading="lazy" className="h-full w-full object-cover" />}</div>
               <div className="px-3 pt-3"><p className="line-clamp-2 min-h-10 text-sm font-medium">{product.name}</p><p className="mt-2 font-bold">{formatNaira(product.base_price)}</p></div>
             </Link>
-            <div className="p-3"><Button size="sm" className="w-full" disabled={addingId !== null || !addItem.mutateAsync} onClick={() => void addRecommendation(product.slug, product.id)}>{addingId === product.id ? 'Adding...' : 'Add to cart'}</Button></div>
+            <div className="p-3"><Button size="sm" className="w-full" disabled={addingId !== null || !addItem.isPending} onClick={() => void addRecommendation(product.slug, product.id)}>{addingId === product.id ? 'Adding...' : 'Add to cart'}</Button></div>
           </div>
         ))}
       </div>
